@@ -2,7 +2,7 @@
 </script>
 
 <template>
-    <div>Vue JS</div>
+    <div class="font-bold text-red-500">Vue JS</div>
 </template>
 
 <style scoped>
