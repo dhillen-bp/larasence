@@ -1,36 +1,45 @@
 <script setup>
-import { ref } from "vue";
+import { router, usePage } from "@inertiajs/vue3";
+import { computed, ref } from "vue";
 
-const user = ref({
-    name: "Eric Frusciante",
-    email: "eric@frusciante.com",
-});
+const page = usePage();
+const isLoggedIn = computed(() => page.props.user);
+const userName = computed(() => page.props.user.data.name);
+const userEmail = computed(() => page.props.user.data.email);
+const userAvatar = computed(() => page.props.user.data.avatar_url);
+const userRole = computed(() => page.props.user.data.role);
 
 const isDropdownOpen = ref(false);
 
 const toggleDropdown = () => {
     isDropdownOpen.value = !isDropdownOpen.value;
 };
+
+const logout = () => {
+    router.post(route("logout"));
+};
 </script>
 
 <template>
     <header class="bg-white shadow-md p-4 flex justify-between items-center">
-        <h1 class="text-lg font-bold">Dashboard</h1>
+        <h1 class="text-lg font-bold">
+            {{ userRole === "admin" ? "Admin" : "Employee" }} Panel
+        </h1>
 
         <!-- User Profile Dropdown -->
-        <div class="relative">
+        <div class="relative" v-if="isLoggedIn">
             <button
                 @click.prevent="toggleDropdown"
                 class="flex items-center space-x-3 p-2 rounded-lg cursor-pointer hover:bg-purple-100"
             >
                 <img
-                    src="https://ui-avatars.com/api/?name=Eric+Frusciante&background=random"
+                    :src="userAvatar"
                     alt="User Avatar"
                     class="w-10 h-10 rounded-full"
                 />
                 <div class="hidden md:block text-left">
-                    <p class="text-sm font-medium">{{ user.name }}</p>
-                    <p class="text-xs text-gray-600">{{ user.email }}</p>
+                    <p class="text-sm font-medium">{{ userName }}</p>
+                    <p class="text-xs text-gray-600">{{ userEmail }}</p>
                 </div>
             </button>
 
@@ -51,6 +60,7 @@ const toggleDropdown = () => {
                 >
                 <hr />
                 <button
+                    @click="logout"
                     class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-purple-100 cursor-pointer"
                 >
                     Logout

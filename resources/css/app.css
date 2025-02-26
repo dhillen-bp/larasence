@@ -1,2 +1,10 @@
 @import "tailwindcss";
 @source "../views";
+
+.invalid-feedback-text {
+    @apply text-sm text-red-500 mt-1
+}
+
+.invalid-feedback-input {
+    @apply border-red-500
+}

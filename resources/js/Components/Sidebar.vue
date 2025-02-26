@@ -84,29 +84,6 @@
                 </li>
             </ul>
         </div>
-
-        <div class="sticky inset-x-0 bottom-0 border-t border-slate-100">
-            <a
-                href="#"
-                class="flex items-center gap-2 bg-purple-400 p-4 hover:bg-purple-500"
-            >
-                <img
-                    alt=""
-                    src="https://images.unsplash.com/photo-1600486913747-55e5470d6f40?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
-                    class="size-10 rounded-full object-cover"
-                />
-
-                <div>
-                    <p class="text-xs">
-                        <strong class="block font-medium"
-                            >Eric Frusciante</strong
-                        >
-
-                        <span> eric@frusciante.com </span>
-                    </p>
-                </div>
-            </a>
-        </div>
     </div>
 </template>
 
