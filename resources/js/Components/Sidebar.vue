@@ -1,4 +1,6 @@
-<script setup></script>
+<script setup>
+import { Link } from "@inertiajs/vue3";
+</script>
 
 <template>
     <div
@@ -15,21 +17,21 @@
 
             <ul class="mt-6 space-y-1.5">
                 <li>
-                    <a
-                        href="#"
+                    <Link
+                        :href="route('dashboard')"
                         class="block rounded-lg bg-purple-100 px-4 py-2 text-sm font-medium text-purple-700"
                     >
                         Dashboard
-                    </a>
+                    </Link>
                 </li>
 
                 <li>
-                    <a
-                        href="#"
+                    <Link
+                        :href="route('attendances.index')"
                         class="block rounded-lg px-4 py-2 text-sm font-medium text-purple-100 hover:bg-purple-100 hover:text-purple-700"
                     >
                         Attendance
-                    </a>
+                    </Link>
                 </li>
 
                 <li>

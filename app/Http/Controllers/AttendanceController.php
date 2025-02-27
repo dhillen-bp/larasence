@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AttendanceResource;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,10 +15,14 @@ class AttendanceController extends Controller
      */
     public function index()
     {
-        $attendances = Attendance::where('user_id', Auth::id())->latest()->get();
+        $attendances = Attendance::with('user')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->get();
 
-        return Inertia::render('Attendance/Index', [
-            'attendances' => $attendances
+
+        return Inertia::render('User/Attendance/Index', [
+            'attendances' => AttendanceResource::collection($attendances)
         ]);
     }
 
@@ -26,7 +31,7 @@ class AttendanceController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('User/Attendance/Create');
     }
 
     /**
@@ -80,5 +85,53 @@ class AttendanceController extends Controller
     public function destroy(Attendance $attendance)
     {
         //
+    }
+
+    public function checkIn(Request $request)
+    {
+        $request->validate([
+            'latitude' => 'required',
+            'longitude' => 'required',
+        ]);
+
+        $existingAttendance = Attendance::where('user_id', Auth::user()->id)
+            ->whereDate('check_in', today())
+            ->first();
+
+        if ($existingAttendance) {
+            return back()->with('error', 'You have already checked in today.');
+        }
+
+        Attendance::create([
+            'user_id' => Auth::id(),
+            'check_in' => now(),
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+        ]);
+
+        return back()->with('success', 'Checked in successfully');
+    }
+
+    public function checkOut(Request $request)
+    {
+        $request->validate([
+            'latitude' => 'required',
+            'longitude' => 'required',
+        ]);
+
+        $attendance = Attendance::where('user_id', Auth::user()->id)
+            ->whereDate('check_in', today())
+            ->whereNull('check_out')
+            ->first();
+
+        if (!$attendance) {
+            return back()->with('error', 'No active check-in found.');
+        }
+
+        $attendance->update([
+            'check_out' => now(),
+        ]);
+
+        return back()->with('success', 'Checked out successfully');
     }
 }

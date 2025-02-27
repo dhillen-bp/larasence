@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('check_out')->nullable();
             $table->double('latitude', 10, 6)->nullable();
             $table->double('longitude', 10, 6)->nullable();
-            $table->enum('status', ['on_time', 'late', 'absent'])->default('on_time');
+            $table->enum('status', ['pending', 'on_time', 'late', 'absent'])->default('pending');
             $table->timestamps();
         });
     }

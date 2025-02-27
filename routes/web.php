@@ -14,7 +14,13 @@ Route::prefix('auth')->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
         return Inertia::render('Index');
-    });
+    })->name('dashboard');
 
-    Route::resource('/attendances', AttendanceController::class);
+    Route::resource('/attendances', AttendanceController::class)->only(['index', 'store']);
+    Route::post('/attendances/check-in', [AttendanceController::class, 'checkIn'])->name('attendances.checkin');
+    Route::patch('/attendances/check-out', [AttendanceController::class, 'checkOut'])->name('attendances.checkout');
+
+    Route::get('/test', function () {
+        return Inertia::render('Test');
+    })->name('test');
 });
