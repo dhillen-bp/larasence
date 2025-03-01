@@ -19,7 +19,8 @@ import { Link } from "@inertiajs/vue3";
                 <li>
                     <Link
                         :href="route('dashboard')"
-                        class="block rounded-lg bg-purple-100 px-4 py-2 text-sm font-medium text-purple-700"
+                        class="block rounded-lg px-4 py-2 text-sm font-medium text-purple-100 hover:bg-purple-100 hover:text-purple-700"
+                        :class="{ 'active-sidebar': $page.url === '/' }"
                     >
                         Dashboard
                     </Link>
@@ -29,6 +30,9 @@ import { Link } from "@inertiajs/vue3";
                     <Link
                         :href="route('attendances.index')"
                         class="block rounded-lg px-4 py-2 text-sm font-medium text-purple-100 hover:bg-purple-100 hover:text-purple-700"
+                        :class="{
+                            'active-sidebar': route().current('attendances.*'),
+                        }"
                     >
                         Attendance
                     </Link>

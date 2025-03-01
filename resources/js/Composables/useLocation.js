@@ -5,10 +5,16 @@ import { toast } from "vue3-toastify";
 export function useLocation() {
     const latitude = ref(null);
     const longitude = ref(null);
-
     const page = usePage();
 
+    const resetLocation = () => {
+        latitude.value = null;
+        longitude.value = null;
+    };
+
+
     const getLocation = () => {
+        resetLocation();
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -17,7 +23,8 @@ export function useLocation() {
                 },
                 (error) => {
                     alert("Gagal mendapatkan lokasi: " + error.message);
-                }
+                },
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
             );
         } else {
             alert("Geolocation tidak didukung di browser ini.");
@@ -45,6 +52,7 @@ export function useLocation() {
                                 position: toast.POSITION.TOP_RIGHT,
                             });
                         }
+                        resetLocation();
                     },
                 }
             );
@@ -74,6 +82,7 @@ export function useLocation() {
                                 position: toast.POSITION.TOP_RIGHT,
                             });
                         }
+                        resetLocation();
                     },
                 });
             } else {

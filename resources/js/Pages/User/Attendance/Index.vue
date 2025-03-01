@@ -22,12 +22,6 @@ const page = usePage();
     <AppLayout>
         <div>
             <h1 class="text-2xl font-bold mb-4 underline">Absence Action</h1>
-            <p v-if="page.props.flash.success" class="text-green-500">
-                {{ page.props.flash.success }}
-            </p>
-            <p v-if="page.props.flash.error" class="text-red-500">
-                {{ page.props.flash.error }}
-            </p>
             <div class="flex justify-between">
                 <button
                     @click="checkIn"

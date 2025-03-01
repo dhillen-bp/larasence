@@ -8,3 +8,7 @@
 .invalid-feedback-input {
     @apply border-red-500
 }
+
+.active-sidebar {
+    @apply bg-purple-100 text-purple-700 hover:font-bold
+}
