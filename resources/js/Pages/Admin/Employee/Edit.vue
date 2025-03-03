@@ -1,6 +1,7 @@
 <script setup>
-import { useForm } from "@inertiajs/vue3";
+import { useForm, usePage } from "@inertiajs/vue3";
 import AppLayout from "../../../Layouts/AppLayout.vue";
+import { showToastSuccess } from "../../../Composables/useToast";
 
 const props = defineProps({
     employee: {
@@ -8,6 +9,8 @@ const props = defineProps({
         required: true,
     },
 });
+
+const page = usePage();
 
 const form = useForm({
     name: props.employee.name,
@@ -22,7 +25,11 @@ const form = useForm({
             <form
                 @submit.prevent="
                     form.patch(
-                        route('admin.employees.update', props.employee.id)
+                        route('admin.employees.update', props.employee.id),
+                        {
+                            onSuccess: () =>
+                                showToastSuccess(page.props.flash.success),
+                        }
                     )
                 "
             >

@@ -1,6 +1,8 @@
 <script setup>
-import { Link, router } from "@inertiajs/vue3";
+import { Link, router, usePage } from "@inertiajs/vue3";
 import AppLayout from "../../../Layouts/AppLayout.vue";
+import { toast } from "vue3-toastify";
+import { showToastSuccess } from "../../../Composables/useToast";
 
 defineProps({
     employees: {
@@ -9,9 +11,15 @@ defineProps({
     },
 });
 
+const page = usePage();
+
 const deleteEmployee = (id) => {
     if (confirm("Are you sure you want to delete this employee?")) {
-        router.delete(route("admin.employees.destroy", id));
+        router.delete(route("admin.employees.destroy", id), {
+            onSuccess: () => {
+                showToastSuccess(page.props.flash.success);
+            },
+        });
     }
 };
 </script>

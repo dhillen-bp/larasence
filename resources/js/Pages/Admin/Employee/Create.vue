@@ -1,6 +1,9 @@
 <script setup>
-import { useForm } from "@inertiajs/vue3";
+import { useForm, usePage } from "@inertiajs/vue3";
 import AppLayout from "../../../Layouts/AppLayout.vue";
+import { showToastSuccess } from "../../../Composables/useToast";
+
+const page = usePage();
 
 const form = useForm({
     name: "",
@@ -13,7 +16,14 @@ const form = useForm({
     <AppLayout>
         <div>
             <h2 class="mb-8 font-bold text-xl">Create Employee</h2>
-            <form @submit.prevent="form.post(route('admin.employees.store'))">
+            <form
+                @submit.prevent="
+                    form.post(route('admin.employees.store'), {
+                        onSuccess: () =>
+                            showToastSuccess(page.props.flash.success),
+                    })
+                "
+            >
                 <div class="mb-6">
                     <label
                         for="name"
