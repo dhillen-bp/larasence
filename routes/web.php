@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
@@ -16,11 +17,13 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('Index');
     })->name('dashboard');
 
-    Route::resource('/attendances', AttendanceController::class)->only(['index', 'store']);
-    Route::post('/attendances/check-in', [AttendanceController::class, 'checkIn'])->name('attendances.checkin');
-    Route::patch('/attendances/check-out', [AttendanceController::class, 'checkOut'])->name('attendances.checkout');
+    Route::middleware(['is_employee'])->group(function () {
+        Route::resource('/attendances', AttendanceController::class)->only(['index', 'store']);
+        Route::post('/attendances/check-in', [AttendanceController::class, 'checkIn'])->name('attendances.checkin');
+        Route::patch('/attendances/check-out', [AttendanceController::class, 'checkOut'])->name('attendances.checkout');
+    });
 
-    Route::get('/test', function () {
-        return Inertia::render('Test');
-    })->name('test');
+    Route::middleware(['is_admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::resource('/employees', EmployeeController::class);
+    });
 });

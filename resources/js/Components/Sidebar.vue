@@ -1,5 +1,9 @@
 <script setup>
-import { Link } from "@inertiajs/vue3";
+import { Link, usePage } from "@inertiajs/vue3";
+
+const page = usePage();
+const userRole = page.props.user.data.role;
+console.log(userRole);
 </script>
 
 <template>
@@ -26,7 +30,7 @@ import { Link } from "@inertiajs/vue3";
                     </Link>
                 </li>
 
-                <li>
+                <li v-if="userRole === 'employee'">
                     <Link
                         :href="route('attendances.index')"
                         class="block rounded-lg px-4 py-2 text-sm font-medium text-purple-100 hover:bg-purple-100 hover:text-purple-700"
@@ -38,7 +42,7 @@ import { Link } from "@inertiajs/vue3";
                     </Link>
                 </li>
 
-                <li>
+                <li v-if="userRole === 'admin'">
                     <details
                         class="group [&_summary::-webkit-details-marker]:hidden"
                     >
@@ -69,12 +73,18 @@ import { Link } from "@inertiajs/vue3";
 
                         <ul class="mt-2 space-y-1 px-4">
                             <li>
-                                <a
-                                    href="#"
+                                <Link
+                                    :href="route('admin.employees.index')"
                                     class="block rounded-lg px-4 py-2 text-sm font-medium text-purple-100 hover:bg-purple-100 hover:text-purple-700"
+                                    :class="{
+                                        'active-sidebar':
+                                            route().current(
+                                                'admin.employees.*'
+                                            ),
+                                    }"
                                 >
                                     Employee Data
-                                </a>
+                                </Link>
                             </li>
 
                             <li>
