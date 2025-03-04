@@ -25,7 +25,6 @@ class AttendanceController extends Controller
             ->latest()
             ->get();
 
-
         return Inertia::render('User/Attendance/Index', [
             'attendances' => AttendanceResource::collection($attendances)
         ]);

@@ -3,7 +3,6 @@ import { Link, usePage } from "@inertiajs/vue3";
 
 const page = usePage();
 const userRole = page.props.user.data.role;
-console.log(userRole);
 </script>
 
 <template>
@@ -88,12 +87,17 @@ console.log(userRole);
                             </li>
 
                             <li>
-                                <a
-                                    href="#"
+                                <Link
+                                    :href="route('admin.attendances.index')"
                                     class="block rounded-lg px-4 py-2 text-sm font-medium text-purple-100 hover:bg-purple-100 hover:text-purple-700"
+                                    :class="{
+                                        'active-sidebar': route().current(
+                                            'admin.attendances.*'
+                                        ),
+                                    }"
                                 >
                                     Attendance Recap
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </details>

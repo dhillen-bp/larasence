@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AttendanceRecapController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
@@ -25,5 +26,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['is_admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::resource('/employees', EmployeeController::class);
+        Route::resource('/attendances', AttendanceRecapController::class)->except(['create', 'store']);
     });
 });
