@@ -32,6 +32,51 @@ const updateStatus = () => {
             <form @submit.prevent="updateStatus">
                 <div class="mb-6">
                     <label
+                        for="user_name"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                        User Name
+                    </label>
+                    <input
+                        type="text"
+                        id="user_name"
+                        :value="props.attendance.data.user.name"
+                        class="md:w-1/2 rounded-lg border border-gray-300 bg-gray-100 py-2 px-3 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-0 focus:border-gray-400 cursor-not-allowed"
+                        disabled
+                    />
+                </div>
+                <div class="mb-6">
+                    <label
+                        for="check_in"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                        Check In
+                    </label>
+                    <input
+                        type="text"
+                        id="check_in"
+                        :value="props.attendance.data.check_in"
+                        class="md:w-1/2 rounded-lg border border-gray-300 bg-gray-100 py-2 px-3 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-0 focus:border-gray-400 cursor-not-allowed"
+                        readonly
+                    />
+                </div>
+                <div class="mb-6">
+                    <label
+                        for="check_out"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                        Check Out
+                    </label>
+                    <input
+                        type="text"
+                        id="check_out"
+                        :value="props.attendance.data.check_out ?? '-'"
+                        class="md:w-1/2 rounded-lg border border-gray-300 bg-gray-100 py-2 px-3 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-0 focus:border-gray-400 cursor-not-allowed"
+                        readonly
+                    />
+                </div>
+                <div class="mb-6">
+                    <label
                         for="status"
                         class="block text-sm font-medium text-gray-700 mb-2"
                     >

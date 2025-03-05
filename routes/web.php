@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AttendanceRecapController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -17,6 +18,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
         return Inertia::render('Index');
     })->name('dashboard');
+
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::middleware(['is_employee'])->group(function () {
         Route::resource('/attendances', AttendanceController::class)->only(['index', 'store']);

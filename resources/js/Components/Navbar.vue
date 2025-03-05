@@ -1,5 +1,5 @@
 <script setup>
-import { router, usePage } from "@inertiajs/vue3";
+import { Link, router, usePage } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 
 const page = usePage();
@@ -48,10 +48,10 @@ const logout = () => {
                 v-if="isDropdownOpen"
                 class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg overflow-hidden border border-slate-200"
             >
-                <a
-                    href="#"
-                    class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
-                    >Profile</a
+                <Link
+                    :href="route('profile.index')"
+                    class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 cursor-pointer"
+                    >Profile</Link
                 >
                 <a
                     href="#"
