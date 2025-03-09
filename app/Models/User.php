@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -22,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'images'
     ];
 
     /**
@@ -49,6 +51,10 @@ class User extends Authenticatable
 
     public function avatarUrl()
     {
+        if ($this->image) {
+            return Storage::url('profile/' . $this->image);
+        }
+
         $name = urlencode($this->name);
         return "https://ui-avatars.com/api/?name={$name}&background=random";
     }
