@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AttendanceRecapController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -16,9 +17,7 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', function () {
-        return Inertia::render('Index');
-    })->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -36,9 +35,9 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // TESTING
-Route::get('/test', function () {
-    return inertia('TestPage');
-})->name('dashboard');
-Route::post('/test', function (Request $request) {
-    return dd($request->all(), $request->file('avatar'));
-})->name('dashboard');
+// Route::get('/test', function () {
+//     return inertia('TestPage');
+// })->name('test');
+// Route::post('/test', function (Request $request) {
+//     return dd($request->all(), $request->file('avatar'));
+// })->name('test');

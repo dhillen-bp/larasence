@@ -7,7 +7,7 @@ const userRole = page.props.user.data.role;
 
 <template>
     <div
-        class="flex h-screen flex-col justify-between border-e border-slate-100 bg-purple-400"
+        class="flex min-h-screen flex-col justify-between border-e border-slate-100 bg-purple-400"
     >
         <div class="px-4 py-6">
             <span

@@ -1,11 +1,13 @@
 <script setup>
-import AppLayout from "../Layouts/AppLayout.vue";
+import { usePage } from "@inertiajs/vue3";
+import DashboardAdmin from "../Components/DashboardAdmin.vue";
+import DashboardEmployee from "../Components/DashboardEmployee.vue";
+
+const page = usePage();
+const role = page.props.user.data.role; // "admin" atau "employee"
 </script>
 
 <template>
-    <AppLayout>
-        <div class="font-bold text-red-500">Vue JS</div>
-    </AppLayout>
+    <DashboardEmployee v-if="role === 'employee'" />
+    <DashboardAdmin v-else-if="role === 'admin'" />
 </template>
-
-<style scoped></style>

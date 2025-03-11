@@ -24,6 +24,7 @@ class AttendanceController extends Controller
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
+        return dd(AttendanceResource::collection($attendances));
 
         return Inertia::render('User/Attendance/Index', [
             'attendances' => AttendanceResource::collection($attendances)
