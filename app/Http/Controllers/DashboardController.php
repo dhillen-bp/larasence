@@ -23,15 +23,16 @@ class DashboardController extends Controller
 
         $stillCheckIn = Attendance::whereDate('check_in', today())->where('status', 'pending')->whereNull('check_out')->count();
 
-        // $latestCheckIn = Attendance::whereDate('check_in', today())
-        //     ->orderBy('check_in', 'desc')
-        //     ->limit(10)
-        //     ->get();
         $latestCheckIn = Attendance::whereDate('check_in', today())
             ->orderBy('check_in', 'desc')
             ->limit(10)
             ->get();
-        // return dd($latestCheckIn);
+        // $latestCheckIn = Attendance::whereDate('check_in', today())
+        //     ->orderBy('check_in', 'desc')
+        //     ->limit(10)
+        //     ->get();
+
+        // return dd(AttendanceResource::collection($latestCheckIn));
 
         return Inertia::render('Index', [
             'totalEmployees' => $totalEmployees,
