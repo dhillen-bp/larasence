@@ -3,6 +3,7 @@ import { Link, router, usePage } from "@inertiajs/vue3";
 import AppLayout from "../../../Layouts/AppLayout.vue";
 import { toast } from "vue3-toastify";
 import { showToastSuccess } from "../../../Composables/useToast";
+import Pagination from "../../../Components/Pagination.vue";
 
 defineProps({
     employees: {
@@ -65,7 +66,7 @@ const deleteEmployee = (id) => {
 
                 <tbody class="divide-y divide-purple-200">
                     <tr
-                        v-for="employee in employees"
+                        v-for="employee in employees.data"
                         :key="employee.id"
                         class="odd:bg-purple-50"
                     >
@@ -95,6 +96,9 @@ const deleteEmployee = (id) => {
                     </tr>
                 </tbody>
             </table>
+
+            <Pagination :meta="employees.meta" />
+            <!-- {{ employees.data }} -->
         </div>
     </AppLayout>
 </template>

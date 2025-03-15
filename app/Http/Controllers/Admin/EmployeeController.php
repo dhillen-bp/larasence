@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,10 +19,12 @@ class EmployeeController extends Controller
     {
         $employees = User::whereHas('roles', function ($query) {
             $query->where('name', 'employee');
-        })->get();
+        })->paginate(5);
+
+        // return dd(UserResource::collection($employees),);
 
         return Inertia::render('Admin/Employee/Index', [
-            'employees' => $employees
+            'employees' => UserResource::collection($employees),
         ]);
     }
 

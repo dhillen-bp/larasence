@@ -3,6 +3,7 @@ import { Link, router, usePage } from "@inertiajs/vue3";
 import AppLayout from "../../../Layouts/AppLayout.vue";
 import { toast } from "vue3-toastify";
 import { showToastSuccess } from "../../../Composables/useToast";
+import Pagination from "../../../Components/Pagination.vue";
 
 defineProps({
     attendances: {
@@ -108,6 +109,8 @@ const deleteEmployee = (id) => {
                     </tr>
                 </tbody>
             </table>
+
+            <Pagination :meta="attendances.meta" />
         </div>
     </AppLayout>
 </template>

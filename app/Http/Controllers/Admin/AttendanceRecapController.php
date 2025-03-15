@@ -17,7 +17,7 @@ class AttendanceRecapController extends Controller
     {
         $attendances = Attendance::with('user')
             ->latest()
-            ->get();
+            ->paginate(5);
 
         return Inertia::render('Admin/Attendance/Index', [
             'attendances' => AttendanceResource::collection($attendances)
