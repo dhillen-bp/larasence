@@ -4,13 +4,20 @@ import AppLayout from "../../../Layouts/AppLayout.vue";
 import { toast } from "vue3-toastify";
 import { showToastSuccess } from "../../../Composables/useToast";
 import Pagination from "../../../Components/Pagination.vue";
+import { ref } from "vue";
 
-defineProps({
+const props = defineProps({
     employees: {
         type: Object,
         required: true,
     },
+    filters: {
+        type: Object,
+        default: () => ({}),
+    },
 });
+
+const search = ref(props.filters.search || "");
 
 const page = usePage();
 
@@ -23,6 +30,14 @@ const deleteEmployee = (id) => {
         });
     }
 };
+
+const submitSearch = () => {
+    router.get(
+        route("admin.employees.index"),
+        { search: search.value },
+        { preserveState: true }
+    );
+};
 </script>
 
 <template>
@@ -31,12 +46,31 @@ const deleteEmployee = (id) => {
             <div class="mb-6">
                 <div class="flex justify-between items-center">
                     <h1 class="text-2xl font-bold">List Employee</h1>
-                    <Link
-                        class="bg-purple-500 px-3 py-2 rounded-xl text-sm text-slate-100 cursor-pointer"
-                        :href="route('admin.employees.create')"
-                    >
-                        Add Employee
-                    </Link>
+                    <div class="flex space-x-2">
+                        <form
+                            @submit.prevent="submitSearch"
+                            class="flex space-x-2"
+                        >
+                            <input
+                                v-model="search"
+                                type="text"
+                                placeholder="Search..."
+                                class="px-3 py-2 border rounded-lg text-sm"
+                            />
+                            <button
+                                type="submit"
+                                class="bg-blue-500 px-3 py-2 rounded-xl text-sm text-white cursor-pointer"
+                            >
+                                Search
+                            </button>
+                        </form>
+                        <Link
+                            class="bg-purple-500 px-3 py-2 rounded-xl text-sm text-slate-100 cursor-pointer"
+                            :href="route('admin.employees.create')"
+                        >
+                            Add Employee
+                        </Link>
+                    </div>
                 </div>
                 <hr class="mt-1 border-purple-500" />
             </div>
@@ -98,7 +132,6 @@ const deleteEmployee = (id) => {
             </table>
 
             <Pagination :meta="employees.meta" />
-            <!-- {{ employees.data }} -->
         </div>
     </AppLayout>
 </template>

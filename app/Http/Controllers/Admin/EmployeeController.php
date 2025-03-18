@@ -15,16 +15,24 @@ class EmployeeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $employees = User::whereHas('roles', function ($query) {
-            $query->where('name', 'employee');
-        })->paginate(5);
+        $query = User::whereHas('roles', function ($q) {
+            $q->where('name', 'employee');
+        });
 
-        // return dd(UserResource::collection($employees),);
+        if ($request->has('search') && $request->search != '') {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $employees = $query->paginate(5)->withQueryString();
 
         return Inertia::render('Admin/Employee/Index', [
             'employees' => UserResource::collection($employees),
+            'filters' => $request->only(['search']),
         ]);
     }
 
