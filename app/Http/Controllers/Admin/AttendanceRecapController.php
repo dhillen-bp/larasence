@@ -13,16 +13,25 @@ class AttendanceRecapController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $attendances = Attendance::with('user')
-            ->latest()
-            ->paginate(5);
+        $query = Attendance::with('user');
+
+        // Filter search berdasarkan nama di model User
+        if ($request->has('search') && $request->search != '') {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $attendances = $query->latest()->paginate(5)->withQueryString();
 
         return Inertia::render('Admin/Attendance/Index', [
-            'attendances' => AttendanceResource::collection($attendances)
+            'attendances' => AttendanceResource::collection($attendances),
+            'filters' => $request->only(['search']),
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.

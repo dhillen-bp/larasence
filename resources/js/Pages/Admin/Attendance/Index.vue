@@ -4,15 +4,23 @@ import AppLayout from "../../../Layouts/AppLayout.vue";
 import { toast } from "vue3-toastify";
 import { showToastSuccess } from "../../../Composables/useToast";
 import Pagination from "../../../Components/Pagination.vue";
+import { ref, watch } from "vue";
+import debounce from "lodash/debounce";
 
 defineProps({
     attendances: {
         type: Object,
         required: true,
     },
+    filters: {
+        type: Object,
+        default: () => ({}),
+    },
 });
 
+const search = ref("");
 const page = usePage();
+const isLoading = ref(false);
 
 const deleteEmployee = (id) => {
     if (confirm("Are you sure you want to delete this attendance?")) {
@@ -23,6 +31,25 @@ const deleteEmployee = (id) => {
         });
     }
 };
+
+const searchAttendance = debounce((query) => {
+    isLoading.value = true;
+    router.get(
+        route("admin.attendances.index"),
+        { search: query },
+        {
+            preserveState: true,
+            replace: true,
+            onFinish: () => {
+                isLoading.value = false;
+            },
+        }
+    );
+}, 1000);
+
+watch(search, (newValue) => {
+    searchAttendance(newValue);
+});
 </script>
 
 <template>
@@ -32,6 +59,22 @@ const deleteEmployee = (id) => {
                 <div class="flex justify-between items-center">
                     <h1 class="text-2xl font-bold">List Attendance</h1>
                 </div>
+                <form @submit.prevent class="flex space-x-2">
+                    <input
+                        v-model="search"
+                        type="text"
+                        placeholder="Search..."
+                        class="px-3 py-2 border rounded-lg text-sm"
+                    />
+                </form>
+
+                <div
+                    v-if="isLoading"
+                    class="text-purple-600 font-semibold text-sm my-2"
+                >
+                    Loading...
+                </div>
+
                 <hr class="mt-1 border-purple-500" />
             </div>
 

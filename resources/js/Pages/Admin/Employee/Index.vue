@@ -1,10 +1,10 @@
 <script setup>
 import { Link, router, usePage } from "@inertiajs/vue3";
 import AppLayout from "../../../Layouts/AppLayout.vue";
-import { toast } from "vue3-toastify";
 import { showToastSuccess } from "../../../Composables/useToast";
 import Pagination from "../../../Components/Pagination.vue";
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { debounce } from "lodash";
 
 const props = defineProps({
     employees: {
@@ -18,9 +18,10 @@ const props = defineProps({
 });
 
 const search = ref(props.filters.search || "");
-
 const page = usePage();
+const isLoading = ref(false);
 
+// Fungsi hapus karyawan
 const deleteEmployee = (id) => {
     if (confirm("Are you sure you want to delete this employee?")) {
         router.delete(route("admin.employees.destroy", id), {
@@ -31,13 +32,24 @@ const deleteEmployee = (id) => {
     }
 };
 
-const submitSearch = () => {
+const searchEmployees = debounce((query) => {
+    isLoading.value = true;
     router.get(
         route("admin.employees.index"),
-        { search: search.value },
-        { preserveState: true }
+        { search: query },
+        {
+            preserveState: true,
+            replace: true,
+            onFinish: () => {
+                isLoading.value = false;
+            },
+        }
     );
-};
+}, 1000);
+
+watch(search, (newValue) => {
+    searchEmployees(newValue);
+});
 </script>
 
 <template>
@@ -47,22 +59,13 @@ const submitSearch = () => {
                 <div class="flex justify-between items-center">
                     <h1 class="text-2xl font-bold">List Employee</h1>
                     <div class="flex space-x-2">
-                        <form
-                            @submit.prevent="submitSearch"
-                            class="flex space-x-2"
-                        >
+                        <form @submit.prevent class="flex space-x-2">
                             <input
                                 v-model="search"
                                 type="text"
                                 placeholder="Search..."
                                 class="px-3 py-2 border rounded-lg text-sm"
                             />
-                            <button
-                                type="submit"
-                                class="bg-blue-500 px-3 py-2 rounded-xl text-sm text-white cursor-pointer"
-                            >
-                                Search
-                            </button>
                         </form>
                         <Link
                             class="bg-purple-500 px-3 py-2 rounded-xl text-sm text-slate-100 cursor-pointer"
@@ -73,6 +76,13 @@ const submitSearch = () => {
                     </div>
                 </div>
                 <hr class="mt-1 border-purple-500" />
+                <!-- LOADING SEARCH -->
+                <div
+                    v-if="isLoading"
+                    class="text-purple-600 font-semibold text-sm my-2"
+                >
+                    Loading...
+                </div>
             </div>
 
             <table
@@ -118,8 +128,9 @@ const submitSearch = () => {
                                     route('admin.employees.edit', employee.id)
                                 "
                                 class="px-3 py-1 text-sm bg-amber-500 text-slate-100 rounded-full"
-                                >Edit</Link
                             >
+                                Edit
+                            </Link>
                             <button
                                 @click="deleteEmployee(employee.id)"
                                 class="px-3 py-1 text-sm bg-red-500 text-slate-100 rounded-full cursor-pointer"
@@ -135,5 +146,3 @@ const submitSearch = () => {
         </div>
     </AppLayout>
 </template>
-
-<style scoped></style>
