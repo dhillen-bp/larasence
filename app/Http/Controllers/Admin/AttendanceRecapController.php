@@ -17,18 +17,25 @@ class AttendanceRecapController extends Controller
     {
         $query = Attendance::with('user');
 
-        // Filter search berdasarkan nama di model User
         if ($request->has('search') && $request->search != '') {
             $query->whereHas('user', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%');
             });
         }
 
+        if ($request->has('date') && $request->date != '') {
+            $query->whereDate('check_in', $request->date);
+        }
+
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
         $attendances = $query->latest()->paginate(5)->withQueryString();
 
         return Inertia::render('Admin/Attendance/Index', [
             'attendances' => AttendanceResource::collection($attendances),
-            'filters' => $request->only(['search']),
+            'filters' => $request->only(['search', 'date']),
         ]);
     }
 

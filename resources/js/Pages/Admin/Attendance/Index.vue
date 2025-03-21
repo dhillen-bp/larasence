@@ -7,7 +7,7 @@ import Pagination from "../../../Components/Pagination.vue";
 import { ref, watch } from "vue";
 import debounce from "lodash/debounce";
 
-defineProps({
+const props = defineProps({
     attendances: {
         type: Object,
         required: true,
@@ -18,7 +18,9 @@ defineProps({
     },
 });
 
-const search = ref("");
+const search = ref(props.filters.search || "");
+const date = ref(props.filters.date || "");
+const status = ref(props.filters.status || "");
 const page = usePage();
 const isLoading = ref(false);
 
@@ -32,11 +34,18 @@ const deleteEmployee = (id) => {
     }
 };
 
-const searchAttendance = debounce((query) => {
+const resetFilters = () => {
+    search.value = "";
+    date.value = "";
+    status.value = "";
+    searchAttendance();
+};
+
+const searchAttendance = debounce(() => {
     isLoading.value = true;
     router.get(
         route("admin.attendances.index"),
-        { search: query },
+        { search: search.value, date: date.value, status: status.value },
         {
             preserveState: true,
             replace: true,
@@ -47,9 +56,7 @@ const searchAttendance = debounce((query) => {
     );
 }, 1000);
 
-watch(search, (newValue) => {
-    searchAttendance(newValue);
-});
+watch([search, date, status], searchAttendance);
 </script>
 
 <template>
@@ -59,13 +66,54 @@ watch(search, (newValue) => {
                 <div class="flex justify-between items-center">
                     <h1 class="text-2xl font-bold">List Attendance</h1>
                 </div>
-                <form @submit.prevent class="flex space-x-2">
-                    <input
-                        v-model="search"
-                        type="text"
-                        placeholder="Search..."
-                        class="px-3 py-2 border rounded-lg text-sm"
-                    />
+                <form
+                    @submit.prevent
+                    class="flex space-x-2 justify-around my-2"
+                >
+                    <div class="space-x-2">
+                        <label for="search" class="text-sm"
+                            >Search by Name:</label
+                        >
+                        <input
+                            id="search"
+                            v-model="search"
+                            type="text"
+                            placeholder="Search..."
+                            class="px-3 py-2 border rounded-lg text-sm border-purple-200 focus:border-purple-600 focus:outline-none focus:ring-0"
+                        />
+                    </div>
+                    <div class="space-x-2">
+                        <label for="search" class="text-sm"
+                            >Filter by Date:</label
+                        >
+                        <input
+                            v-model="date"
+                            type="date"
+                            class="px-3 py-2 border rounded-lg text-sm border-purple-200 focus:border-purple-600 focus:outline-none focus:ring-0"
+                        />
+                    </div>
+                    <div class="space-x-2">
+                        <label for="status" class="text-sm"
+                            >Filter by Status:</label
+                        >
+                        <select
+                            id="status"
+                            v-model="status"
+                            class="px-3 py-2 border rounded-lg text-sm border-purple-200 focus:border-purple-600 focus:outline-none focus:ring-0"
+                        >
+                            <option value="">All</option>
+                            <option value="on_time">On Time</option>
+                            <option value="late">Late</option>
+                            <option value="pending">Pending</option>
+                            <option value="absent">Absent</option>
+                        </select>
+                    </div>
+                    <button
+                        @click.prevent="resetFilters"
+                        class="px-3 py-1.5 bg-slate-400 text-white rounded-lg text-sm hover:bg-slate-500"
+                    >
+                        Reset Filter
+                    </button>
                 </form>
 
                 <div
