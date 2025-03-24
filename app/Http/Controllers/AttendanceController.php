@@ -18,9 +18,19 @@ class AttendanceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $attendances = Attendance::with('user')
+        $query = Attendance::with('user');
+
+        if ($request->has('date') && $request->date != '') {
+            $query->whereDate('check_in', $request->date);
+        }
+
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        $attendances = $query
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
