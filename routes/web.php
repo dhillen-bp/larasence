@@ -34,6 +34,8 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+Route::get('/employees/export', [EmployeeController::class, 'export'])->name('admin.employees.export');
+
 // TESTING
 // Route::get('/test', function () {
 //     return inertia('TestPage');

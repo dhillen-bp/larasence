@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use App\Exports\EmployeesExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeController extends Controller
 {
@@ -118,5 +120,11 @@ class EmployeeController extends Controller
         $employee->delete();
 
         return redirect()->back()->with('success', 'Employee deleted successfully!');
+    }
+
+    public function export()
+    {
+        Log::info('Metode export dipanggil.');
+        return Excel::download(new EmployeesExport, 'employees.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 }

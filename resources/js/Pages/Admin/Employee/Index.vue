@@ -3,7 +3,7 @@ import { Link, router, usePage } from "@inertiajs/vue3";
 import AppLayout from "../../../Layouts/AppLayout.vue";
 import { showToastSuccess } from "../../../Composables/useToast";
 import Pagination from "../../../Components/Pagination.vue";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { debounce } from "lodash";
 
 const props = defineProps({
@@ -50,6 +50,8 @@ const searchEmployees = debounce((query) => {
 watch(search, (newValue) => {
     searchEmployees(newValue);
 });
+
+const exportUrl = computed(() => route("admin.employees.export"));
 </script>
 
 <template>
@@ -73,6 +75,15 @@ watch(search, (newValue) => {
                         >
                             Add Employee
                         </Link>
+                    </div>
+
+                    <div>
+                        <a
+                            :href="exportUrl"
+                            class="bg-green-500 px-3 py-2 rounded-xl text-sm text-white hover:bg-green-600"
+                        >
+                            Export Excel
+                        </a>
                     </div>
                 </div>
                 <hr class="mt-1 border-purple-500" />
