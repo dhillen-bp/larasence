@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/employees/export', [EmployeeController::class, 'export'])->name('admin.employees.export');
+Route::get('/attendances/export', [AttendanceRecapController::class, 'export'])->name('admin.attendances.export');
 
 // TESTING
 // Route::get('/test', function () {

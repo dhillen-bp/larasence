@@ -124,7 +124,7 @@ class EmployeeController extends Controller
 
     public function export()
     {
-        Log::info('Metode export dipanggil.');
+        // Log::info('Metode export dipanggil.');
         return Excel::download(new EmployeesExport, 'employees.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 }

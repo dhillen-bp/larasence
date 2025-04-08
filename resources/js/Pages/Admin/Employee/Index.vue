@@ -50,36 +50,36 @@ const searchEmployees = debounce((query) => {
 watch(search, (newValue) => {
     searchEmployees(newValue);
 });
-
-const exportUrl = computed(() => route("admin.employees.export"));
 </script>
 
 <template>
     <AppLayout>
         <div class="overflow-x-auto">
             <div class="mb-6">
-                <div class="flex justify-between items-center">
-                    <h1 class="text-2xl font-bold">List Employee</h1>
-                    <div class="flex space-x-2">
-                        <form @submit.prevent class="flex space-x-2">
-                            <input
-                                v-model="search"
-                                type="text"
-                                placeholder="Search..."
-                                class="px-3 py-2 border rounded-lg text-sm"
-                            />
-                        </form>
-                        <Link
-                            class="bg-purple-500 px-3 py-2 rounded-xl text-sm text-slate-100 cursor-pointer"
-                            :href="route('admin.employees.create')"
-                        >
-                            Add Employee
-                        </Link>
+                <div class="space-y-4 pb-6">
+                    <div class="flex justify-between items-center">
+                        <h1 class="text-2xl font-bold">List Employee</h1>
+                        <div class="flex space-x-2">
+                            <form @submit.prevent class="flex space-x-2">
+                                <input
+                                    v-model="search"
+                                    type="text"
+                                    placeholder="Search..."
+                                    class="px-3 py-2 border rounded-lg text-sm"
+                                />
+                            </form>
+                            <Link
+                                class="bg-purple-500 px-3 py-2 rounded-xl text-sm text-slate-100 cursor-pointer"
+                                :href="route('admin.employees.create')"
+                            >
+                                Add Employee
+                            </Link>
+                        </div>
                     </div>
-
                     <div>
                         <a
-                            :href="exportUrl"
+                            target="_blank"
+                            :href="route('admin.employees.export')"
                             class="bg-green-500 px-3 py-2 rounded-xl text-sm text-white hover:bg-green-600"
                         >
                             Export Excel

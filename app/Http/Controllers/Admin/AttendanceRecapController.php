@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\AttendancesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AttendanceResource;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AttendanceRecapController extends Controller
 {
@@ -105,5 +107,11 @@ class AttendanceRecapController extends Controller
         $attendance->delete();
 
         return redirect()->back()->with('success', 'Attendance deleted successfully!');
+    }
+
+    public function export()
+    {
+        // Log::info('Metode export dipanggil.');
+        return Excel::download(new AttendancesExport, 'attendances.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 }

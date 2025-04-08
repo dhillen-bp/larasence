@@ -122,9 +122,18 @@ watch([search, date, status], searchAttendance);
                 >
                     Loading...
                 </div>
-
-                <hr class="mt-1 border-purple-500" />
             </div>
+            <div class="mb-6">
+                <a
+                    target="_blank"
+                    :href="route('admin.attendances.export')"
+                    class="bg-green-500 px-3 py-2 rounded-xl text-sm text-white hover:bg-green-600"
+                >
+                    Export Excel
+                </a>
+            </div>
+
+            <hr class="mt-1 border-purple-500" />
 
             <table
                 class="min-w-full divide-y-2 divide-purple-200 bg-purple-50 text-sm"
