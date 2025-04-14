@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendances', function (Blueprint $table) {
+        Schema::create('permission_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->timestamp('check_in')->nullable();
-            $table->timestamp('check_out')->nullable();
-            $table->double('latitude', 10, 6)->nullable();
-            $table->double('longitude', 10, 6)->nullable();
-            $table->enum('status', ['pending', 'on_time', 'late', 'absent', 'permission'])->default('pending');
+
+            $table->enum('type', ['leave', 'permission', 'sick']);
+            $table->text('note')->nullable();
+
+            $table->timestamp('start_date');
+            $table->timestamp('end_date');
+
+            $table->string('attachment')->nullable();
+            $table->boolean('is_approved')->default(false);
             $table->timestamps();
         });
     }
@@ -28,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendances');
+        Schema::dropIfExists('permission_requests');
     }
 };

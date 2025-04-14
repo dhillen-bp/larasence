@@ -5,7 +5,9 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PermissionRequestController;
 use App\Http\Controllers\ProfileController;
+use App\Models\PermissionRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -37,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/employees/export', [EmployeeController::class, 'export'])->name('admin.employees.export');
 Route::get('/attendances/export', [AttendanceRecapController::class, 'export'])->name('admin.attendances.export');
 
+Route::resource('/attendances/permission', PermissionRequestController::class);
 // TESTING
 // Route::get('/test', function () {
 //     return inertia('TestPage');

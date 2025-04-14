@@ -2,7 +2,7 @@
 import { useLocation } from "../../../Composables/useLocation";
 import AppLayout from "../../../Layouts/AppLayout.vue";
 import { ref, watch, watchEffect } from "vue";
-import { router, usePage } from "@inertiajs/vue3";
+import { Link, router, usePage } from "@inertiajs/vue3";
 import { toast } from "vue3-toastify";
 import { debounce } from "lodash";
 
@@ -52,7 +52,7 @@ watch([date, status], searchAttendance);
     <AppLayout>
         <div>
             <h1 class="text-2xl font-bold mb-4 underline">Absence Action</h1>
-            <div class="flex justify-between">
+            <div class="flex justify-between mb-4">
                 <button
                     @click="checkIn"
                     class="bg-green-500 text-white px-4 py-2 rounded cursor-pointer"
@@ -66,6 +66,12 @@ watch([date, status], searchAttendance);
                     Check Out
                 </button>
             </div>
+            <Link
+                :href="route('permission.index')"
+                class="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"
+            >
+                Ask Permission
+            </Link>
         </div>
 
         <hr class="my-6 border-purple-500" />

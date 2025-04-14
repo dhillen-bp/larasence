@@ -20,7 +20,14 @@ class AttendanceController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Attendance::with('user');
+        $query = Attendance::with(['user', 'permissionRequest'])
+            ->where('user_id', Auth::id())
+            ->where(function ($q) {
+                $q->whereNull('permission_request_id')
+                    ->orWhereHas('permissionRequest', function ($q2) {
+                        $q2->where('is_approved', 1);
+                    });
+            });
 
         if ($request->has('date') && $request->date != '') {
             $query->whereDate('check_in', $request->date);

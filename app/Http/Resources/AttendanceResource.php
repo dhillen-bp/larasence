@@ -31,6 +31,7 @@ class AttendanceResource extends JsonResource
             'on_time' => 'On Time ⏳',
             'late' => 'Late ⏰',
             'absent' => 'Absent ❌',
+            'permission' => 'Permission 🙏',
             default => 'Pending 🟡',
         };
     }
