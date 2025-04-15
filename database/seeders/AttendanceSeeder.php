@@ -14,16 +14,18 @@ class AttendanceSeeder extends Seeder
      */
     public function run(): void
     {
-        $statuses = ['pending', 'on_time', 'late', 'absent', 'permission'];
+        $statuses = ['pending', 'on_time', 'late', 'absent'];
 
-        for ($i = 0; $i < 60; $i++) {
+        for ($i = 0; $i < 20; $i++) {
+            $day = Carbon::now();
+
             Attendance::create([
-                'user_id' => rand(1, 20),
-                'check_in' => Carbon::now()->subDays(rand(1, 30))->setTime(rand(7, 9), rand(0, 59)),
-                'check_out' => Carbon::now()->subDays(rand(1, 30))->setTime(rand(16, 18), rand(0, 59)),
-                'latitude' => -7.626966,
-                'longitude' => 110.849205,
-                'status' => $statuses[array_rand($statuses)],
+                'user_id'    => rand(1, 20),
+                'check_in'   => $day->copy()->setTime(9, 0, 0),
+                'check_out'  => $day->copy()->setTime(17, 0, 0),
+                'latitude'   => -7.626966,
+                'longitude'  => 110.849205,
+                'status'     => $statuses[array_rand($statuses)],
             ]);
         }
     }

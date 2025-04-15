@@ -17,8 +17,13 @@ class AttendanceRecapController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Attendance::with('user');
-
+        $query = Attendance::with(['user', 'permissionRequest'])
+            ->where(function ($q) {
+                $q->whereNull('permission_request_id')
+                    ->orWhereHas('permissionRequest', function ($q2) {
+                        $q2->where('is_approved', 1);
+                    });
+            });
         if ($request->has('search') && $request->search != '') {
             $query->whereHas('user', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%');

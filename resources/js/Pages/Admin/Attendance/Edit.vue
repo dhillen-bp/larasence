@@ -16,7 +16,7 @@ const form = useForm({
     status: props.attendance.data.status,
 });
 
-console.log(props.attendance.data.stat);
+// console.log(props.attendance.data.stat);
 
 const updateStatus = () => {
     form.patch(route("admin.attendances.update", props.attendance.data.id), {

@@ -43,7 +43,7 @@ class PermissionRequestController extends Controller
         // return dd($validated);
 
         if ($request->hasFile('attachment')) {
-            $validated['attachment'] = $request->file('attachment')->store('attachments', 'public');
+            $validated['attachment'] = $request->file('attachment')->store('permissions', 'public');
         }
 
         $validated['user_id'] = auth()->id();

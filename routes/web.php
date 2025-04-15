@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AttendanceRecapController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\PermissionRequestController as AdminPermissionRequestController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -33,6 +34,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['is_admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::resource('/employees', EmployeeController::class);
         Route::resource('/attendances', AttendanceRecapController::class)->except(['create', 'store']);
+        Route::resource('/permissions', AdminPermissionRequestController::class)->except(['create', 'store']);
+        Route::patch('/permissions/{permission}/approve', [AdminPermissionRequestController::class, 'approve'])->name('permissions.approve');
+        Route::patch('/permissions/{permission}/reject', [AdminPermissionRequestController::class, 'reject'])->name('permissions.reject');
     });
 });
 
