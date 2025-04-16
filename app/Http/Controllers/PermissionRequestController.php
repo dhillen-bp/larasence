@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PermissionRequestResource;
 use App\Models\Attendance;
 use App\Models\PermissionRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -16,7 +18,11 @@ class PermissionRequestController extends Controller
      */
     public function index()
     {
-        return Inertia::render('User/Attendance/Permission/Index');
+        $user_id = Auth::user()->id;
+        $permissions = PermissionRequest::with('user')->where('user_id', $user_id)->latest()->paginate(10);
+        return Inertia::render('User/Attendance/Permission/Index', [
+            'permissions' => PermissionRequestResource::collection($permissions),
+        ]);
     }
 
     /**
@@ -24,7 +30,7 @@ class PermissionRequestController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('User/Attendance/Permission/Create');
     }
 
     /**
@@ -70,7 +76,7 @@ class PermissionRequestController extends Controller
 
             DB::commit();
 
-            return redirect()->route('attendances.index')->with('success', 'Permission request and attendance created.');
+            return redirect()->route('permission.index')->with('success', 'Permission request created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -85,7 +91,10 @@ class PermissionRequestController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $permission = PermissionRequest::with('user')->where('id', $id)->first();
+        return Inertia::render('User/Attendance/Permission/Detail', [
+            'permission' => new PermissionRequestResource($permission),
+        ]);
     }
 
     /**

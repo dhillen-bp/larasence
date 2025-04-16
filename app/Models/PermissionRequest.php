@@ -34,9 +34,4 @@ class PermissionRequest extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    public function getAttachmentUrlAttribute()
-    {
-        return $this->attachment ? asset('storage/permissions/' . $this->attachment) : null;
-    }
 }

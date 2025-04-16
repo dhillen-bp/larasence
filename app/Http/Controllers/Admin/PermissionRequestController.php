@@ -82,6 +82,7 @@ class PermissionRequestController extends Controller
 
         return redirect()->route('admin.permissions.index')->with('success', 'Permission approved successfully.');
     }
+
     public function reject(string $id)
     {
         $permission = PermissionRequest::findOrFail($id);

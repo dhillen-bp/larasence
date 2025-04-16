@@ -67,7 +67,7 @@ watch([date, status], searchAttendance);
                 </button>
             </div>
             <Link
-                :href="route('permission.index')"
+                :href="route('permission.create')"
                 class="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"
             >
                 Ask Permission

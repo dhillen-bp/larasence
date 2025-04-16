@@ -37,7 +37,19 @@ const userRole = page.props.user.data.role;
                             'active-sidebar': route().current('attendances.*'),
                         }"
                     >
-                        Attendance
+                        My Attendance
+                    </Link>
+                </li>
+
+                <li v-if="userRole === 'employee'">
+                    <Link
+                        :href="route('permission.index')"
+                        class="block rounded-lg px-4 py-2 text-sm font-medium text-purple-100 hover:bg-purple-100 hover:text-purple-700"
+                        :class="{
+                            'active-sidebar': route().current('permission.*'),
+                        }"
+                    >
+                        My Permission
                     </Link>
                 </li>
 

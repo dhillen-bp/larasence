@@ -1,104 +1,97 @@
 <script setup>
+import { Link } from "@inertiajs/vue3";
 import AppLayout from "../../../../Layouts/AppLayout.vue";
-import { ref } from "vue";
-import { useForm } from "@inertiajs/vue3";
 
-const form = useForm({
-    type: "permission", // default value
-    note: "",
-    start_date: "",
-    end_date: "",
-    attachment: null,
+defineProps({
+    permissions: {
+        type: Object,
+        required: true,
+    },
 });
-
-const submit = () => {
-    form.post(route("permission.store"), {
-        preserveScroll: true,
-    });
-};
 </script>
 
 <template>
     <AppLayout>
-        <h1 class="text-xl font-bold mb-4">Form Permission Request</h1>
+        <h1 class="text-2xl font-bold mb-4 underline">Attendance Permission</h1>
 
-        <form @submit.prevent="submit" class="space-y-4">
-            <div>
-                <label class="block mb-1 font-medium">Type</label>
-                <select
-                    v-model="form.type"
-                    class="w-full border border-gray-300 rounded px-3 py-2"
+        <table
+            class="min-w-full divide-y-2 divide-purple-200 bg-purple-50 text-sm"
+        >
+            <thead class="ltr:text-left rtl:text-right">
+                <tr>
+                    <th
+                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
+                    >
+                        No
+                    </th>
+                    <th
+                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
+                    >
+                        Name
+                    </th>
+                    <th
+                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
+                    >
+                        Type
+                    </th>
+                    <th
+                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
+                    >
+                        Start Date - End Date
+                    </th>
+                    <th
+                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
+                    >
+                        Is Approved
+                    </th>
+                    <th
+                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
+                    >
+                        Action
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-purple-200">
+                <tr
+                    v-for="(permission, index) in permissions.data"
+                    :key="permission.id"
+                    class="odd:bg-purple-50"
                 >
-                    <option value="leave">Leave</option>
-                    <option value="permission">Permission</option>
-                    <option value="sick">Sick</option>
-                </select>
-                <div v-if="form.errors.type" class="text-red-600 text-sm">
-                    {{ form.errors.type }}
-                </div>
-            </div>
-
-            <div>
-                <label class="block mb-1 font-medium">Note</label>
-                <textarea
-                    v-model="form.note"
-                    class="w-full border border-gray-300 rounded px-3 py-2"
-                ></textarea>
-                <div v-if="form.errors.note" class="text-red-600 text-sm">
-                    {{ form.errors.note }}
-                </div>
-            </div>
-
-            <div class="flex gap-4">
-                <div class="flex-1">
-                    <label class="block mb-1 font-medium">Start Date</label>
-                    <input
-                        type="date"
-                        v-model="form.start_date"
-                        class="w-full border border-gray-300 rounded px-3 py-2"
-                    />
-                    <div
-                        v-if="form.errors.start_date"
-                        class="text-red-600 text-sm"
+                    <td class="whitespace-nowrap px-4 py-2 text-slate-700">
+                        {{
+                            (permissions.meta.current_page - 1) *
+                                permissions.meta.per_page +
+                            index +
+                            1
+                        }}
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-slate-700">
+                        {{ permission.user.name }}
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-slate-700">
+                        {{ permission.type }}
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-slate-700">
+                        {{ permission.start_date }} <b>-</b>
+                        {{ permission.end_date }}
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2 text-slate-700">
+                        {{ permission.is_approved ? "Yes" : "No" }}
+                    </td>
+                    <td
+                        class="whitespace-nowrap px-4 py-2 text-slate-700 font-medium"
                     >
-                        {{ form.errors.start_date }}
-                    </div>
-                </div>
-                <div class="flex-1">
-                    <label class="block mb-1 font-medium">End Date</label>
-                    <input
-                        type="date"
-                        v-model="form.end_date"
-                        class="w-full border border-gray-300 rounded px-3 py-2"
-                    />
-                    <div
-                        v-if="form.errors.end_date"
-                        class="text-red-600 text-sm"
-                    >
-                        {{ form.errors.end_date }}
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <label class="block mb-1 font-medium">Attachment</label>
-                <input
-                    type="file"
-                    @change="(e) => (form.attachment = e.target.files[0])"
-                    class="w-full border border-gray-300 rounded px-3 py-2"
-                />
-                <div v-if="form.errors.attachment" class="text-red-600 text-sm">
-                    {{ form.errors.attachment }}
-                </div>
-            </div>
-
-            <button
-                type="submit"
-                :disabled="form.processing"
-                class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 cursor-pointer"
-            >
-                Submit Request
-            </button>
-        </form>
+                        <Link
+                            :href="route('permission.show', permission.id)"
+                            class="px-3 py-1 text-sm bg-purple-500 text-slate-100 rounded-full"
+                            >Detail</Link
+                        >
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </AppLayout>
 </template>
+
+<style scoped></style>

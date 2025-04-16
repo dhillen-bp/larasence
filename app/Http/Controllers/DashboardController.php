@@ -24,6 +24,10 @@ class DashboardController extends Controller
         $stillCheckIn = Attendance::whereDate('check_in', today())->where('status', 'pending')->whereNull('check_out')->count();
 
         $latestCheckIn = Attendance::whereDate('check_in', today())
+            ->whereNull('permission_request_id')
+            ->orWhereHas('permissionRequest', function ($query) {
+                $query->where('is_approved', 1);
+            })
             ->orderBy('check_in', 'desc')
             ->limit(10)
             ->get();
