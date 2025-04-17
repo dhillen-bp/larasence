@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import AppLayout from "../Layouts/AppLayout.vue";
 import { Link, usePage } from "@inertiajs/vue3";
+import { Button } from "primevue";
 
 const currentTime = ref("");
 const page = usePage();

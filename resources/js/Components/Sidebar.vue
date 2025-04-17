@@ -3,11 +3,26 @@ import { Link, usePage } from "@inertiajs/vue3";
 
 const page = usePage();
 const userRole = page.props.user.data.role;
+
+defineProps({
+    isOpen: {
+        type: Boolean,
+        default: false,
+    },
+});
 </script>
 
 <template>
-    <div
+    <!-- <div
         class="flex min-h-screen flex-col justify-between border-e border-slate-100 bg-purple-400"
+    > -->
+    <div
+        :class="[
+            'bg-purple-400 w-64',
+            'transition-transform duration-300',
+            isOpen ? 'translate-x-0 ' : '-translate-x-full',
+            'md:translate-x-0 md:static',
+        ]"
     >
         <div class="px-4 py-6">
             <span
