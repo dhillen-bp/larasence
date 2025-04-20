@@ -27,7 +27,7 @@ const isSidebarOpen = ref(false);
             <Navbar @toggle-sidebar="isSidebarOpen = !isSidebarOpen" />
 
             <!-- Content -->
-            <main class="flex-1 p-6 overflow-auto mt-8">
+            <main class="flex-1 p-6 overflow-auto mt-4">
                 <slot />
             </main>
         </div>

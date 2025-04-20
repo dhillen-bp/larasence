@@ -7,7 +7,26 @@ import Vue3Toastify from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
+import 'primeicons/primeicons.css';
+import { definePreset } from '@primeuix/themes';
 
+const myCustomPreset = definePreset(Aura, {
+    semantic: {
+      primary: {
+        50: '{purple.50}',
+        100: '{purple.100}',
+        200: '{purple.200}',
+        300: '{purple.300}',
+        400: '{purple.400}',
+        500: '{purple.500}',
+        600: '{purple.600}',
+        700: '{purple.700}',
+        800: '{purple.800}',
+        900: '{purple.900}',
+        950: '{purple.950}',
+      },
+    },
+  });
 
 createInertiaApp({
   resolve: name => {
@@ -20,12 +39,12 @@ createInertiaApp({
       .use(ZiggyVue)
       .use(PrimeVue, {
         theme: {
-            preset: Aura,
+            preset: myCustomPreset,
             // options: {
             //     prefix: 'p',
-            //     darkModeSelector: 'system',
-            //     cssLayer: false
-            // }
+            //     darkModeSelector: '.p-dark',
+            //     cssLayer: false,
+            // },
         }
       })
       .use(

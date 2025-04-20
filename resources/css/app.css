@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @source "../views";
+@import "tailwindcss-primeui";
 
 .invalid-feedback-text {
     @apply text-sm text-red-500 mt-1

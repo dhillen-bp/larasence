@@ -30,7 +30,8 @@ class EmployeeController extends Controller
             });
         }
 
-        $employees = $query->paginate(5)->withQueryString();
+        // $employees = $query->paginate(5)->withQueryString();
+        $employees = $query->get();
 
         return Inertia::render('Admin/Employee/Index', [
             'employees' => UserResource::collection($employees),

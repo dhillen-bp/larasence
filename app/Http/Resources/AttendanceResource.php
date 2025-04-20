@@ -17,8 +17,10 @@ class AttendanceResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'check_in' => $this->check_in ? Carbon::parse($this->check_in)->format('Y-m-d H:i:s') : null,
+            'check_in' => $this->check_in,
             'check_out' => $this->check_out ? Carbon::parse($this->check_out)->format('Y-m-d H:i:s') : null,
+            'check_in_value' => $this->check_in ? Carbon::parse($this->check_in)->format('Y-m-d H:i:s') : null,
+
             'status' => $this->status,
             'user' => UserResource::make($this->user),
             'formatted_status' => $this->formatStatus(),
