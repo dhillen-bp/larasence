@@ -72,7 +72,10 @@ class PermissionRequestController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $permission = PermissionRequest::findOrFail($id);
+        $permission->delete();
+
+        return redirect()->back()->with('success', 'Permission request deleted successfully!');
     }
 
     public function approve(string $id)

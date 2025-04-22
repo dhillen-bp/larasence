@@ -4,16 +4,18 @@ import AppLayout from "../../../Layouts/AppLayout.vue";
 import { showToastSuccess } from "../../../Composables/useToast";
 import { onMounted, ref } from "vue";
 import {
+    Button,
     Column,
     DataTable,
     DatePicker,
+    Dialog,
     IconField,
     InputIcon,
     InputText,
     Select,
     Tag,
 } from "primevue";
-import { FilterMatchMode, FilterOperator } from "@primevue/core/api";
+import { FilterMatchMode } from "@primevue/core/api";
 
 const props = defineProps({
     attendances: {
@@ -26,36 +28,28 @@ const props = defineProps({
     },
 });
 
-const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    "user.name": { value: null, matchMode: FilterMatchMode.CONTAINS },
-    status: { value: null, matchMode: FilterMatchMode.EQUALS },
-    check_in: { value: null, matchMode: FilterMatchMode.DATE_IS },
-    check_out: { value: null, matchMode: FilterMatchMode.DATE_IS },
-});
-
 const statuses = ref(["on_time", "late", "absent", "permission"]);
-
 const page = usePage();
 const loading = ref(false);
+const deleteDialogVisible = ref(false);
+const selectedAttendance = ref(null);
+const filters = ref();
 
-const deleteEmployee = (id) => {
-    if (confirm("Are you sure you want to delete this attendance?")) {
-        router.delete(route("admin.attendances.destroy", id), {
-            onSuccess: () => {
-                showToastSuccess(page.props.flash.success);
-            },
-        });
-    }
+const initFilters = () => {
+    filters.value = {
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        "user.name": { value: null, matchMode: FilterMatchMode.CONTAINS },
+        status: { value: null, matchMode: FilterMatchMode.EQUALS },
+        check_in: { value: null, matchMode: FilterMatchMode.DATE_IS },
+        check_out: { value: null, matchMode: FilterMatchMode.DATE_IS },
+    };
 };
 
-// const formatDate = (value) => {
-//     return value.toLocaleDateString("en-US", {
-//         day: "2-digit",
-//         month: "2-digit",
-//         year: "numeric",
-//     });
-// };
+initFilters();
+
+const clearFilter = () => {
+    initFilters();
+};
 
 onMounted(() => {
     props.attendances.data.forEach((data) => {
@@ -76,7 +70,7 @@ const formatDateTime = (date) => {
     });
 };
 
-const getSeverity = (status) => {
+const getStatusBadge = (status) => {
     switch (status) {
         case "absent":
             return "danger";
@@ -90,6 +84,23 @@ const getSeverity = (status) => {
         case "on_time":
             return "success";
     }
+};
+
+const confirmDeleteAttendance = (employee) => {
+    selectedAttendance.value = employee;
+    deleteDialogVisible.value = true;
+};
+
+const handleDeleteAttendance = () => {
+    router.delete(
+        route("admin.attendances.destroy", selectedAttendance.value.id),
+        {
+            onSuccess: () => {
+                showToastSuccess(page.props.flash.success);
+                deleteDialogVisible.value = false;
+            },
+        }
+    );
 };
 </script>
 
@@ -127,10 +138,10 @@ const getSeverity = (status) => {
                     dataKey="id"
                     filterDisplay="row"
                     :loading="loading"
-                    :globalFilterFields="['user.name']"
+                    :globalFilterFields="['user.name', 'status']"
                 >
                     <template #header>
-                        <div class="flex justify-start">
+                        <div class="flex justify-between">
                             <IconField>
                                 <InputIcon>
                                     <i class="pi pi-search" />
@@ -140,6 +151,13 @@ const getSeverity = (status) => {
                                     placeholder="Keyword Search"
                                 />
                             </IconField>
+                            <Button
+                                type="button"
+                                icon="pi pi-filter-slash"
+                                label="Clear"
+                                outlined
+                                @click="clearFilter()"
+                            />
                         </div>
                     </template>
                     <template #empty>No attendances found.</template>
@@ -212,7 +230,7 @@ const getSeverity = (status) => {
                         <template #body="{ data }">
                             <Tag
                                 :value="data.status"
-                                :severity="getSeverity(data.status)"
+                                :severity="getStatusBadge(data.status)"
                             />
                         </template>
                         <template #filter="{ filterModel, filterCallback }">
@@ -228,7 +246,7 @@ const getSeverity = (status) => {
                                     <Tag
                                         :value="slotProps.option"
                                         :severity="
-                                            getSeverity(slotProps.option)
+                                            getStatusBadge(slotProps.option)
                                         "
                                     />
                                 </template>
@@ -239,25 +257,58 @@ const getSeverity = (status) => {
                     <Column header="Action" style="min-width: 10rem">
                         <template #body="{ data }">
                             <div class="flex gap-2">
-                                <Link
-                                    :href="
-                                        route('admin.attendances.edit', data.id)
-                                    "
-                                    class="px-3 py-1 text-sm bg-amber-500 text-slate-100 rounded-full"
+                                <Button
+                                    asChild
+                                    v-slot="slotProps"
+                                    severity="info"
+                                    size="small"
                                 >
-                                    Edit
-                                </Link>
-                                <button
-                                    @click="deleteEmployee(data.id)"
-                                    class="px-3 py-1 text-sm bg-red-500 text-slate-100 rounded-full"
-                                >
-                                    Delete
-                                </button>
+                                    <Link
+                                        :href="
+                                            route(
+                                                'admin.attendances.edit',
+                                                data.id
+                                            )
+                                        "
+                                        :class="slotProps.class"
+                                        >Edit</Link
+                                    >
+                                </Button>
+                                <Button
+                                    label="Delete"
+                                    severity="danger"
+                                    size="small"
+                                    icon="pi pi-trash"
+                                    @click="confirmDeleteAttendance(data)"
+                                />
                             </div>
                         </template>
                     </Column>
                 </DataTable>
             </div>
+
+            <Dialog
+                v-model:visible="deleteDialogVisible"
+                :style="{ width: '350px' }"
+                header="Confirm Delete"
+                :modal="true"
+            >
+                <span>Are you sure you want to delete attendances ?</span>
+                <template #footer>
+                    <Button
+                        label="No"
+                        icon="pi pi-times"
+                        severity="secondary"
+                        @click="deleteDialogVisible = false"
+                    />
+                    <Button
+                        label="Yes"
+                        icon="pi pi-check"
+                        severity="danger"
+                        @click="handleDeleteAttendance"
+                    />
+                </template>
+            </Dialog>
         </div>
     </AppLayout>
 </template>

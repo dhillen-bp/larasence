@@ -2,10 +2,8 @@
 import { Link, router, usePage } from "@inertiajs/vue3";
 import AppLayout from "../../../Layouts/AppLayout.vue";
 import { showToastSuccess } from "../../../Composables/useToast";
-import Pagination from "../../../Components/Pagination.vue";
-import { computed, onMounted, ref, watch } from "vue";
-import { debounce } from "lodash";
-import { Button, Column, DataTable } from "primevue";
+import { ref } from "vue";
+import { Button, Column, DataTable, Dialog } from "primevue";
 import { FilterMatchMode } from "@primevue/core/api";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
@@ -17,6 +15,10 @@ defineProps({
         required: true,
     },
 });
+
+const deleteDialogVisible = ref(false);
+const selectedEmployee = ref(null);
+
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
@@ -26,16 +28,30 @@ const filters = ref({
 const page = usePage();
 const loading = ref(false);
 
-// Fungsi hapus karyawan
-const deleteEmployee = (id) => {
-    if (confirm("Are you sure you want to delete this employee?")) {
-        router.delete(route("admin.employees.destroy", id), {
-            onSuccess: () => {
-                showToastSuccess(page.props.flash.success);
-            },
-        });
-    }
+const confirmDeleteEmployee = (employee) => {
+    selectedEmployee.value = employee;
+    deleteDialogVisible.value = true;
 };
+
+const handleDeleteEmployee = () => {
+    router.delete(route("admin.employees.destroy", selectedEmployee.value.id), {
+        onSuccess: () => {
+            showToastSuccess(page.props.flash.success);
+            deleteDialogVisible.value = false;
+        },
+    });
+};
+
+// Fungsi hapus karyawan
+// const deleteEmployee = (id) => {
+//     if (confirm("Are you sure you want to delete this employee?")) {
+//         router.delete(route("admin.employees.destroy", id), {
+//             onSuccess: () => {
+//                 showToastSuccess(page.props.flash.success);
+//             },
+//         });
+//     }
+// };
 </script>
 
 <template>
@@ -150,17 +166,44 @@ const deleteEmployee = (id) => {
                                 </Button>
 
                                 <Button
-                                    @click="deleteEmployee(data.id)"
                                     label="Delete"
                                     severity="danger"
                                     size="small"
                                     icon="pi pi-trash"
+                                    @click="confirmDeleteEmployee(data)"
                                 />
                             </div>
                         </template>
                     </Column>
                 </DataTable>
             </div>
+
+            <Dialog
+                v-model:visible="deleteDialogVisible"
+                :style="{ width: '350px' }"
+                header="Confirm Delete"
+                :modal="true"
+            >
+                <span
+                    >Are you sure you want to delete employee
+                    <strong>{{ selectedEmployee?.name }}</strong
+                    >?</span
+                >
+                <template #footer>
+                    <Button
+                        label="No"
+                        icon="pi pi-times"
+                        severity="secondary"
+                        @click="deleteDialogVisible = false"
+                    />
+                    <Button
+                        label="Yes"
+                        icon="pi pi-check"
+                        severity="danger"
+                        @click="handleDeleteEmployee"
+                    />
+                </template>
+            </Dialog>
         </div>
     </AppLayout>
 </template>

@@ -1,96 +1,273 @@
 <script setup>
-import { Link } from "@inertiajs/vue3";
+import { Link, usePage } from "@inertiajs/vue3";
 import AppLayout from "../../../../Layouts/AppLayout.vue";
+import {
+    Button,
+    Checkbox,
+    Column,
+    DataTable,
+    DatePicker,
+    IconField,
+    InputIcon,
+    InputText,
+    Select,
+    Tag,
+} from "primevue";
+import { onMounted, ref } from "vue";
+import { FilterMatchMode } from "@primevue/core/api";
 
-defineProps({
+const page = usePage();
+const loading = ref(false);
+const permission_types = ref(["leave", "permission", "sick"]);
+const filters = ref();
+
+const props = defineProps({
     permissions: {
         type: Object,
         required: true,
     },
 });
+
+const initFilters = () => {
+    filters.value = {
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        "user.name": { value: null, matchMode: FilterMatchMode.CONTAINS },
+        type: { value: null, matchMode: FilterMatchMode.EQUALS },
+        start_date: { value: null, matchMode: FilterMatchMode.DATE_IS },
+        end_date: { value: null, matchMode: FilterMatchMode.DATE_IS },
+        is_approved: { value: null, matchMode: FilterMatchMode.EQUALS },
+    };
+};
+
+initFilters();
+
+onMounted(() => {
+    props.permissions.data.forEach((data) => {
+        data.start_date = data.start_date ? new Date(data.start_date) : null;
+        data.end_date = data.end_date ? new Date(data.end_date) : null;
+        data.is_approved = Boolean(data.is_approved);
+    });
+});
+
+const clearFilter = () => {
+    initFilters();
+};
+
+const formatDateTime = (date) => {
+    if (!date) return "-";
+    return new Date(date).toLocaleString("id-ID", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    });
+};
+
+const getTypesBadge = (type) => {
+    switch (type) {
+        case "leave":
+            return "danger";
+
+        case "permission":
+            return "info";
+
+        case "sick":
+            return "warn";
+    }
+};
 </script>
 
 <template>
     <AppLayout>
-        <h1 class="text-2xl font-bold mb-4 underline">Attendance Permission</h1>
+        <div class="mb-6 space-y-3">
+            <h1 class="text-2xl font-bold mb-4 underline">
+                Attendance Permission
+            </h1>
 
-        <table
-            class="min-w-full divide-y-2 divide-purple-200 bg-purple-50 text-sm"
-        >
-            <thead class="ltr:text-left rtl:text-right">
-                <tr>
-                    <th
-                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
-                    >
-                        No
-                    </th>
-                    <th
-                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
-                    >
-                        Name
-                    </th>
-                    <th
-                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
-                    >
-                        Type
-                    </th>
-                    <th
-                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
-                    >
-                        Start Date - End Date
-                    </th>
-                    <th
-                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
-                    >
-                        Is Approved
-                    </th>
-                    <th
-                        class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
-                    >
-                        Action
-                    </th>
-                </tr>
-            </thead>
+            <Link
+                :href="route('permission.create')"
+                class="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"
+            >
+                Ask Permission
+            </Link>
+        </div>
 
-            <tbody class="divide-y divide-purple-200">
-                <tr
-                    v-for="(permission, index) in permissions.data"
-                    :key="permission.id"
-                    class="odd:bg-purple-50"
+        <div class="card overflow-auto max-w-[1050px]">
+            <DataTable
+                :value="permissions.data"
+                stripedRows
+                paginator
+                showGridlines
+                scrollable
+                :rows="10"
+                :rowsPerPageOptions="[5, 10, 20, 50]"
+                tableStyle="max-width: 50rem"
+                v-model:filters="filters"
+                dataKey="id"
+                filterDisplay="row"
+                :loading="loading"
+                :globalFilterFields="['user.name', 'type']"
+            >
+                <template #header>
+                    <div class="flex justify-between">
+                        <IconField>
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+                            <InputText
+                                v-model="filters['global'].value"
+                                placeholder="Keyword Search"
+                            />
+                        </IconField>
+                        <Button
+                            type="button"
+                            icon="pi pi-filter-slash"
+                            label="Clear"
+                            outlined
+                            @click="clearFilter()"
+                        />
+                    </div>
+                </template>
+                <template #empty>No permissions found.</template>
+                <template #loading>
+                    Loading permissions data. Please wait.
+                </template>
+
+                <Column
+                    field="user.name"
+                    header="Name"
+                    sortable
+                    filter
+                    style="min-width: 12rem"
                 >
-                    <td class="whitespace-nowrap px-4 py-2 text-slate-700">
-                        {{
-                            (permissions.meta.current_page - 1) *
-                                permissions.meta.per_page +
-                            index +
-                            1
-                        }}
-                    </td>
-                    <td class="whitespace-nowrap px-4 py-2 text-slate-700">
-                        {{ permission.user.name }}
-                    </td>
-                    <td class="whitespace-nowrap px-4 py-2 text-slate-700">
-                        {{ permission.type }}
-                    </td>
-                    <td class="whitespace-nowrap px-4 py-2 text-slate-700">
-                        {{ permission.start_date }} <b>-</b>
-                        {{ permission.end_date }}
-                    </td>
-                    <td class="whitespace-nowrap px-4 py-2 text-slate-700">
-                        {{ permission.is_approved ? "Yes" : "No" }}
-                    </td>
-                    <td
-                        class="whitespace-nowrap px-4 py-2 text-slate-700 font-medium"
-                    >
-                        <Link
-                            :href="route('permission.show', permission.id)"
-                            class="px-3 py-1 text-sm bg-purple-500 text-slate-100 rounded-full"
-                            >Detail</Link
+                    <template #body="{ data }">
+                        {{ data.user.name }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <InputText
+                            v-model="filterModel.value"
+                            type="text"
+                            @input="filterCallback()"
+                            placeholder="Search by employee name"
+                        />
+                    </template>
+                </Column>
+
+                <Column
+                    filterField="start_date"
+                    header="Start Date"
+                    dataType="date"
+                    style="min-width: 11rem"
+                >
+                    <template #body="{ data }">
+                        {{ formatDateTime(data.start_date) }}
+                    </template>
+                    <template #filter="{ filterModel }">
+                        <DatePicker
+                            v-model="filterModel.value"
+                            dateFormat="dd/mm/yy"
+                            placeholder="Select Date"
+                        />
+                    </template>
+                </Column>
+
+                <Column
+                    filterField="end_date"
+                    header="End Date"
+                    dataType="date"
+                    style="min-width: 11rem"
+                >
+                    <template #body="{ data }">
+                        {{ formatDateTime(data.end_date) }}
+                    </template>
+                    <template #filter="{ filterModel }">
+                        <DatePicker
+                            v-model="filterModel.value"
+                            dateFormat="dd/mm/yy"
+                            placeholder="Select Date"
+                        />
+                    </template>
+                </Column>
+
+                <Column
+                    field="type"
+                    header="Type"
+                    :showFilterMenu="false"
+                    style="min-width: 10rem"
+                >
+                    <template #body="{ data }">
+                        <Tag
+                            :value="data.type"
+                            :severity="getTypesBadge(data.type)"
+                        />
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <Select
+                            v-model="filterModel.value"
+                            @change="filterCallback()"
+                            :options="permission_types"
+                            placeholder="Select One"
+                            style="min-width: 6rem"
+                            :showClear="true"
                         >
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                            <template #option="slotProps">
+                                <Tag
+                                    :value="slotProps.option"
+                                    :severity="getTypesBadge(slotProps.option)"
+                                />
+                            </template>
+                        </Select>
+                    </template>
+                </Column>
+
+                <Column
+                    field="is_approved"
+                    header="Is Approved"
+                    dataType="boolean"
+                    style="min-width: 6rem; text-align: center"
+                >
+                    <template #body="{ data }">
+                        <i
+                            class="pi"
+                            :class="{
+                                'pi-check-circle text-green-500':
+                                    data.is_approved,
+                                'pi-times-circle text-red-400':
+                                    !data.is_approved,
+                            }"
+                        ></i>
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <Checkbox
+                            v-model="filterModel.value"
+                            :indeterminate="filterModel.value === null"
+                            binary
+                            @change="filterCallback()"
+                        />
+                    </template>
+                </Column>
+
+                <Column header="Action" style="min-width: 8rem">
+                    <template #body="{ data }">
+                        <div class="flex gap-2">
+                            <Button
+                                asChild
+                                v-slot="slotProps"
+                                severity="info"
+                                size="small"
+                            >
+                                <Link
+                                    :href="
+                                        route('admin.permissions.show', data.id)
+                                    "
+                                    :class="slotProps.class"
+                                    >Detail</Link
+                                >
+                            </Button>
+                        </div>
+                    </template>
+                </Column>
+            </DataTable>
+        </div>
     </AppLayout>
 </template>
 

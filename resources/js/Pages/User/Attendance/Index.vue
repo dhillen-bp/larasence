@@ -1,10 +1,23 @@
 <script setup>
 import { useLocation } from "../../../Composables/useLocation";
 import AppLayout from "../../../Layouts/AppLayout.vue";
-import { ref, watch, watchEffect } from "vue";
+import { onMounted, ref, watch, watchEffect } from "vue";
 import { Link, router, usePage } from "@inertiajs/vue3";
 import { toast } from "vue3-toastify";
 import { debounce } from "lodash";
+import {
+    Button,
+    Column,
+    DataTable,
+    DatePicker,
+    Dialog,
+    IconField,
+    InputIcon,
+    InputText,
+    Select,
+    Tag,
+} from "primevue";
+import { FilterMatchMode } from "@primevue/core/api";
 
 const props = defineProps({
     attendances: {
@@ -22,30 +35,60 @@ const { checkIn, checkOut } = useLocation();
 const page = usePage();
 const date = ref(props.filters.date || "");
 const status = ref(props.filters.status || "");
-const isLoading = ref(false);
+const loading = ref(false);
+const statuses = ref(["on_time", "late", "absent", "permission"]);
+const filters = ref();
 
-const resetFilters = () => {
-    date.value = "";
-    status.value = "";
-    searchAttendance();
+const initFilters = () => {
+    filters.value = {
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        "user.name": { value: null, matchMode: FilterMatchMode.CONTAINS },
+        status: { value: null, matchMode: FilterMatchMode.EQUALS },
+        check_in: { value: null, matchMode: FilterMatchMode.DATE_IS },
+        check_out: { value: null, matchMode: FilterMatchMode.DATE_IS },
+    };
 };
 
-const searchAttendance = debounce(() => {
-    isLoading.value = true;
-    router.get(
-        route("attendances.index"),
-        { date: date.value, status: status.value },
-        {
-            preserveState: true,
-            replace: true,
-            onFinish: () => {
-                isLoading.value = false;
-            },
-        }
-    );
-}, 1000);
+initFilters();
 
-watch([date, status], searchAttendance);
+const clearFilter = () => {
+    initFilters();
+};
+
+onMounted(() => {
+    props.attendances.data.forEach((data) => {
+        data.check_in = data.check_in ? new Date(data.check_in) : null;
+        data.check_out = data.check_out ? new Date(data.check_out) : null;
+    });
+});
+
+const formatDateTime = (date) => {
+    if (!date) return "-";
+    return new Date(date).toLocaleString("id-ID", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+    });
+};
+
+const getStatusBadge = (status) => {
+    switch (status) {
+        case "absent":
+            return "danger";
+
+        case "permission":
+            return "info";
+
+        case "late":
+            return "warn";
+
+        case "on_time":
+            return "success";
+    }
+};
 </script>
 
 <template>
@@ -78,90 +121,134 @@ watch([date, status], searchAttendance);
 
         <div class="overflow-x-auto">
             <h1 class="text-2xl font-bold mb-4 underline">Absence History</h1>
-            <form @submit.prevent class="flex space-x-2 justify-around my-2">
-                <div class="space-x-2">
-                    <label for="search" class="text-sm">Filter by Date:</label>
-                    <input
-                        v-model="date"
-                        type="date"
-                        class="px-3 py-2 border rounded-lg text-sm border-purple-200 focus:border-purple-600 focus:outline-none focus:ring-0"
-                    />
-                </div>
-                <div class="space-x-2">
-                    <label for="status" class="text-sm"
-                        >Filter by Status:</label
-                    >
-                    <select
-                        id="status"
-                        v-model="status"
-                        class="px-3 py-2 border rounded-lg text-sm border-purple-200 focus:border-purple-600 focus:outline-none focus:ring-0"
-                    >
-                        <option value="">All</option>
-                        <option value="on_time">On Time</option>
-                        <option value="late">Late</option>
-                        <option value="pending">Pending</option>
-                        <option value="absent">Absent</option>
-                    </select>
-                </div>
-                <button
-                    @click.prevent="resetFilters"
-                    class="px-3 py-1.5 bg-slate-400 text-white rounded-lg text-sm hover:bg-slate-500"
-                >
-                    Reset Filter
-                </button>
-            </form>
 
-            <table
-                class="min-w-full divide-y-2 divide-purple-200 bg-purple-50 text-sm"
+            <DataTable
+                :value="attendances.data"
+                stripedRows
+                paginator
+                showGridlines
+                scrollable
+                :rows="10"
+                :rowsPerPageOptions="[5, 10, 20, 50]"
+                tableStyle="min-width: 50rem"
+                v-model:filters="filters"
+                dataKey="id"
+                filterDisplay="row"
+                :loading="loading"
+                :globalFilterFields="['user.name', 'status']"
             >
-                <thead class="ltr:text-left rtl:text-right">
-                    <tr>
-                        <th
-                            class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
-                        >
-                            Name
-                        </th>
-                        <th
-                            class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
-                        >
-                            Check In
-                        </th>
-                        <th
-                            class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
-                        >
-                            Check Out
-                        </th>
-                        <th
-                            class="whitespace-nowrap px-4 py-2 font-medium text-slate-900"
-                        >
-                            Status
-                        </th>
-                    </tr>
-                </thead>
+                <template #header>
+                    <div class="flex justify-between">
+                        <IconField>
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+                            <InputText
+                                v-model="filters['global'].value"
+                                placeholder="Keyword Search"
+                            />
+                        </IconField>
+                        <Button
+                            type="button"
+                            icon="pi pi-filter-slash"
+                            label="Clear"
+                            outlined
+                            @click="clearFilter()"
+                        />
+                    </div>
+                </template>
+                <template #empty>No attendances found.</template>
+                <template #loading>
+                    Loading attendances data. Please wait.
+                </template>
 
-                <tbody class="divide-y divide-purple-200">
-                    <tr
-                        v-for="attendance in attendances.data"
-                        :key="attendance.id"
-                        class="odd:bg-purple-50"
-                    >
-                        <td class="whitespace-nowrap px-4 py-2 text-slate-900">
-                            {{ attendance.user.name }}
-                        </td>
-                        <td class="whitespace-nowrap px-4 py-2 text-slate-700">
-                            {{ attendance.check_in }}
-                        </td>
-                        <td class="whitespace-nowrap px-4 py-2 text-slate-700">
-                            {{ attendance.check_out }}
-                        </td>
-                        <td
-                            class="whitespace-nowrap px-4 py-2 text-slate-700 font-medium"
+                <Column
+                    field="user.name"
+                    header="Name"
+                    sortable
+                    filter
+                    style="min-width: 12rem"
+                >
+                    <template #body="{ data }">
+                        {{ data.user.name }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <InputText
+                            v-model="filterModel.value"
+                            type="text"
+                            @input="filterCallback()"
+                            placeholder="Search by name"
+                        />
+                    </template>
+                </Column>
+
+                <Column
+                    filterField="check_in"
+                    header="Check In"
+                    dataType="date"
+                    style="min-width: 10rem"
+                >
+                    <template #body="{ data }">
+                        {{ formatDateTime(data.check_in) }}
+                    </template>
+                    <template #filter="{ filterModel }">
+                        <DatePicker
+                            v-model="filterModel.value"
+                            dateFormat="dd/mm/yy"
+                            placeholder="Select Date"
+                        />
+                    </template>
+                </Column>
+
+                <Column
+                    filterField="check_out"
+                    header="Check Out"
+                    dataType="date"
+                    style="min-width: 10rem"
+                >
+                    <template #body="{ data }">
+                        {{ formatDateTime(data.check_out) }}
+                    </template>
+                    <template #filter="{ filterModel }">
+                        <DatePicker
+                            v-model="filterModel.value"
+                            dateFormat="dd/mm/yy"
+                            placeholder="Select Date"
+                        />
+                    </template>
+                </Column>
+
+                <Column
+                    field="status"
+                    header="Status"
+                    :showFilterMenu="false"
+                    style="min-width: 12rem"
+                >
+                    <template #body="{ data }">
+                        <Tag
+                            :value="data.status"
+                            :severity="getStatusBadge(data.status)"
+                        />
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <Select
+                            v-model="filterModel.value"
+                            @change="filterCallback()"
+                            :options="statuses"
+                            placeholder="Select One"
+                            style="min-width: 12rem"
+                            :showClear="true"
                         >
-                            {{ attendance.formatted_status }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <template #option="slotProps">
+                                <Tag
+                                    :value="slotProps.option"
+                                    :severity="getStatusBadge(slotProps.option)"
+                                />
+                            </template>
+                        </Select>
+                    </template>
+                </Column>
+            </DataTable>
         </div>
     </AppLayout>
 </template>

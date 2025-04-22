@@ -44,6 +44,19 @@ defineProps({
                     </Link>
                 </li>
 
+                <li v-if="userRole === 'admin'">
+                    <Link
+                        :href="route('admin.employees.index')"
+                        class="block rounded-lg px-4 py-2 text-sm font-medium text-purple-100 hover:bg-purple-100 hover:text-purple-700"
+                        :class="{
+                            'active-sidebar':
+                                route().current('admin.employees.*'),
+                        }"
+                    >
+                        Employee Data
+                    </Link>
+                </li>
+
                 <li v-if="userRole === 'employee'">
                     <Link
                         :href="route('attendances.index')"
@@ -76,7 +89,7 @@ defineProps({
                             class="flex cursor-pointer items-center justify-between rounded-lg px-4 py-2 text-purple-100 hover:bg-purple-100 hover:text-purple-700"
                         >
                             <span class="text-sm font-medium">
-                                Employee Management
+                                Attendance Management
                             </span>
 
                             <span
@@ -98,21 +111,6 @@ defineProps({
                         </summary>
 
                         <ul class="mt-2 space-y-1 px-4">
-                            <li>
-                                <Link
-                                    :href="route('admin.employees.index')"
-                                    class="block rounded-lg px-4 py-2 text-sm font-medium text-purple-100 hover:bg-purple-100 hover:text-purple-700"
-                                    :class="{
-                                        'active-sidebar':
-                                            route().current(
-                                                'admin.employees.*'
-                                            ),
-                                    }"
-                                >
-                                    Employee Data
-                                </Link>
-                            </li>
-
                             <li>
                                 <Link
                                     :href="route('admin.attendances.index')"
