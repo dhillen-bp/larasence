@@ -4,10 +4,10 @@ import AppLayout from "../../../Layouts/AppLayout.vue";
 import { showToastSuccess } from "../../../Composables/useToast";
 import { ref } from "vue";
 import { Button, Column, DataTable, Dialog } from "primevue";
-import { FilterMatchMode } from "@primevue/core/api";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import InputText from "primevue/inputtext";
+import { useFilters } from "../../../Composables/useFilter";
 
 defineProps({
     employees: {
@@ -19,11 +19,9 @@ defineProps({
 const deleteDialogVisible = ref(false);
 const selectedEmployee = ref(null);
 
-const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    email: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-});
+const { filters, initEmployeeFilters, clearFilter } = useFilters();
+
+initEmployeeFilters();
 
 const page = usePage();
 const loading = ref(false);
@@ -41,17 +39,6 @@ const handleDeleteEmployee = () => {
         },
     });
 };
-
-// Fungsi hapus karyawan
-// const deleteEmployee = (id) => {
-//     if (confirm("Are you sure you want to delete this employee?")) {
-//         router.delete(route("admin.employees.destroy", id), {
-//             onSuccess: () => {
-//                 showToastSuccess(page.props.flash.success);
-//             },
-//         });
-//     }
-// };
 </script>
 
 <template>
@@ -95,7 +82,7 @@ const handleDeleteEmployee = () => {
                     :globalFilterFields="['name', 'email']"
                 >
                     <template #header>
-                        <div class="flex justify-start">
+                        <div class="flex justify-between">
                             <IconField>
                                 <InputIcon>
                                     <i class="pi pi-search" />
@@ -105,6 +92,13 @@ const handleDeleteEmployee = () => {
                                     placeholder="Keyword Search"
                                 />
                             </IconField>
+                            <Button
+                                type="button"
+                                icon="pi pi-filter-slash"
+                                label="Clear"
+                                outlined
+                                @click="clearFilter(initEmployeeFilters)"
+                            />
                         </div>
                     </template>
                     <template #empty>No employees found.</template>

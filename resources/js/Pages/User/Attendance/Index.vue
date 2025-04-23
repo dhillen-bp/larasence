@@ -1,10 +1,8 @@
 <script setup>
 import { useLocation } from "../../../Composables/useLocation";
 import AppLayout from "../../../Layouts/AppLayout.vue";
-import { onMounted, ref, watch, watchEffect } from "vue";
+import { onMounted, ref } from "vue";
 import { Link, router, usePage } from "@inertiajs/vue3";
-import { toast } from "vue3-toastify";
-import { debounce } from "lodash";
 import {
     Button,
     Column,
@@ -17,43 +15,23 @@ import {
     Select,
     Tag,
 } from "primevue";
-import { FilterMatchMode } from "@primevue/core/api";
+import { useFilters } from "../../../Composables/useFilter";
+import { formatDateTime } from "../../../Composables/useFormatter";
+import { useBadge } from "../../../Composables/useBadge";
 
 const props = defineProps({
     attendances: {
         type: Object,
         required: true,
     },
-    filters: {
-        type: Object,
-        default: () => ({}),
-    },
 });
 
 const { checkIn, checkOut } = useLocation();
-
-const page = usePage();
-const date = ref(props.filters.date || "");
-const status = ref(props.filters.status || "");
 const loading = ref(false);
-const statuses = ref(["on_time", "late", "absent", "permission"]);
-const filters = ref();
 
-const initFilters = () => {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        "user.name": { value: null, matchMode: FilterMatchMode.CONTAINS },
-        status: { value: null, matchMode: FilterMatchMode.EQUALS },
-        check_in: { value: null, matchMode: FilterMatchMode.DATE_IS },
-        check_out: { value: null, matchMode: FilterMatchMode.DATE_IS },
-    };
-};
+const { filters, initAttendanceFilters, clearFilter } = useFilters();
 
-initFilters();
-
-const clearFilter = () => {
-    initFilters();
-};
+initAttendanceFilters();
 
 onMounted(() => {
     props.attendances.data.forEach((data) => {
@@ -62,33 +40,7 @@ onMounted(() => {
     });
 });
 
-const formatDateTime = (date) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleString("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-    });
-};
-
-const getStatusBadge = (status) => {
-    switch (status) {
-        case "absent":
-            return "danger";
-
-        case "permission":
-            return "info";
-
-        case "late":
-            return "warn";
-
-        case "on_time":
-            return "success";
-    }
-};
+const { attendanceStatus, getBadgeClass } = useBadge();
 </script>
 
 <template>
@@ -153,7 +105,7 @@ const getStatusBadge = (status) => {
                             icon="pi pi-filter-slash"
                             label="Clear"
                             outlined
-                            @click="clearFilter()"
+                            @click="clearFilter(initAttendanceFilters)"
                         />
                     </div>
                 </template>
@@ -227,14 +179,14 @@ const getStatusBadge = (status) => {
                     <template #body="{ data }">
                         <Tag
                             :value="data.status"
-                            :severity="getStatusBadge(data.status)"
+                            :severity="getBadgeClass(data.status, 'attendance')"
                         />
                     </template>
                     <template #filter="{ filterModel, filterCallback }">
                         <Select
                             v-model="filterModel.value"
                             @change="filterCallback()"
-                            :options="statuses"
+                            :options="attendanceStatus"
                             placeholder="Select One"
                             style="min-width: 12rem"
                             :showClear="true"
@@ -242,7 +194,12 @@ const getStatusBadge = (status) => {
                             <template #option="slotProps">
                                 <Tag
                                     :value="slotProps.option"
-                                    :severity="getStatusBadge(slotProps.option)"
+                                    :severity="
+                                        getBadgeClass(
+                                            slotProps.option,
+                                            'attendance'
+                                        )
+                                    "
                                 />
                             </template>
                         </Select>

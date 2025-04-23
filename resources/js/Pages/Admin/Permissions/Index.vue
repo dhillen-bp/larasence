@@ -15,14 +15,14 @@ import {
     Tag,
 } from "primevue";
 import { onMounted, ref } from "vue";
-import { FilterMatchMode } from "@primevue/core/api";
+import { useFilters } from "../../../Composables/useFilter";
+import { formatDateTime } from "../../../Composables/useFormatter";
 
 const page = usePage();
 const loading = ref(false);
 const deleteDialogVisible = ref(false);
 const selectedPermission = ref(null);
 const permission_types = ref(["leave", "permission", "sick"]);
-const filters = ref();
 
 const props = defineProps({
     permissions: {
@@ -31,18 +31,9 @@ const props = defineProps({
     },
 });
 
-const initFilters = () => {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        "user.name": { value: null, matchMode: FilterMatchMode.CONTAINS },
-        type: { value: null, matchMode: FilterMatchMode.EQUALS },
-        start_date: { value: null, matchMode: FilterMatchMode.DATE_IS },
-        end_date: { value: null, matchMode: FilterMatchMode.DATE_IS },
-        is_approved: { value: null, matchMode: FilterMatchMode.EQUALS },
-    };
-};
+const { filters, initPermissionFilters, clearFilter } = useFilters();
 
-initFilters();
+initPermissionFilters();
 
 onMounted(() => {
     props.permissions.data.forEach((data) => {
@@ -51,19 +42,6 @@ onMounted(() => {
         data.is_approved = Boolean(data.is_approved);
     });
 });
-
-const clearFilter = () => {
-    initFilters();
-};
-
-const formatDateTime = (date) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleString("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    });
-};
 
 const getTypesBadge = (type) => {
     switch (type) {
@@ -132,7 +110,7 @@ const handleDeletePermission = () => {
                             icon="pi pi-filter-slash"
                             label="Clear"
                             outlined
-                            @click="clearFilter()"
+                            @click="clearFilter(initPermissionFilters)"
                         />
                     </div>
                 </template>

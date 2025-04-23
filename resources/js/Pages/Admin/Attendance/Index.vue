@@ -15,7 +15,9 @@ import {
     Select,
     Tag,
 } from "primevue";
-import { FilterMatchMode } from "@primevue/core/api";
+import { useFilters } from "../../../Composables/useFilter";
+import { useBadge } from "../../../Composables/useBadge";
+import { formatDateTime } from "../../../Composables/useFormatter";
 
 const props = defineProps({
     attendances: {
@@ -28,28 +30,14 @@ const props = defineProps({
     },
 });
 
-const statuses = ref(["on_time", "late", "absent", "permission"]);
 const page = usePage();
 const loading = ref(false);
 const deleteDialogVisible = ref(false);
 const selectedAttendance = ref(null);
-const filters = ref();
 
-const initFilters = () => {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        "user.name": { value: null, matchMode: FilterMatchMode.CONTAINS },
-        status: { value: null, matchMode: FilterMatchMode.EQUALS },
-        check_in: { value: null, matchMode: FilterMatchMode.DATE_IS },
-        check_out: { value: null, matchMode: FilterMatchMode.DATE_IS },
-    };
-};
+const { filters, initAttendanceFilters, clearFilter } = useFilters();
 
-initFilters();
-
-const clearFilter = () => {
-    initFilters();
-};
+initAttendanceFilters();
 
 onMounted(() => {
     props.attendances.data.forEach((data) => {
@@ -58,33 +46,7 @@ onMounted(() => {
     });
 });
 
-const formatDateTime = (date) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleString("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-    });
-};
-
-const getStatusBadge = (status) => {
-    switch (status) {
-        case "absent":
-            return "danger";
-
-        case "permission":
-            return "info";
-
-        case "late":
-            return "warn";
-
-        case "on_time":
-            return "success";
-    }
-};
+const { attendanceStatus, getBadgeClass } = useBadge();
 
 const confirmDeleteAttendance = (employee) => {
     selectedAttendance.value = employee;
@@ -156,7 +118,7 @@ const handleDeleteAttendance = () => {
                                 icon="pi pi-filter-slash"
                                 label="Clear"
                                 outlined
-                                @click="clearFilter()"
+                                @click="clearFilter(initAttendanceFilters)"
                             />
                         </div>
                     </template>
@@ -230,14 +192,16 @@ const handleDeleteAttendance = () => {
                         <template #body="{ data }">
                             <Tag
                                 :value="data.status"
-                                :severity="getStatusBadge(data.status)"
+                                :severity="
+                                    getBadgeClass(data.status, 'attendance')
+                                "
                             />
                         </template>
                         <template #filter="{ filterModel, filterCallback }">
                             <Select
                                 v-model="filterModel.value"
                                 @change="filterCallback()"
-                                :options="statuses"
+                                :options="attendanceStatus"
                                 placeholder="Select One"
                                 style="min-width: 12rem"
                                 :showClear="true"
@@ -246,7 +210,10 @@ const handleDeleteAttendance = () => {
                                     <Tag
                                         :value="slotProps.option"
                                         :severity="
-                                            getStatusBadge(slotProps.option)
+                                            getBadgeClass(
+                                                slotProps.option,
+                                                'attendance'
+                                            )
                                         "
                                     />
                                 </template>

@@ -14,12 +14,11 @@ import {
     Tag,
 } from "primevue";
 import { onMounted, ref } from "vue";
-import { FilterMatchMode } from "@primevue/core/api";
+import { useFilters } from "../../../../Composables/useFilter";
+import { formatDateTime } from "../../../../Composables/useFormatter";
+import { useBadge } from "../../../../Composables/useBadge";
 
-const page = usePage();
 const loading = ref(false);
-const permission_types = ref(["leave", "permission", "sick"]);
-const filters = ref();
 
 const props = defineProps({
     permissions: {
@@ -28,18 +27,9 @@ const props = defineProps({
     },
 });
 
-const initFilters = () => {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        "user.name": { value: null, matchMode: FilterMatchMode.CONTAINS },
-        type: { value: null, matchMode: FilterMatchMode.EQUALS },
-        start_date: { value: null, matchMode: FilterMatchMode.DATE_IS },
-        end_date: { value: null, matchMode: FilterMatchMode.DATE_IS },
-        is_approved: { value: null, matchMode: FilterMatchMode.EQUALS },
-    };
-};
+const { filters, initPermissionFilters, clearFilter } = useFilters();
 
-initFilters();
+initPermissionFilters();
 
 onMounted(() => {
     props.permissions.data.forEach((data) => {
@@ -49,31 +39,7 @@ onMounted(() => {
     });
 });
 
-const clearFilter = () => {
-    initFilters();
-};
-
-const formatDateTime = (date) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleString("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    });
-};
-
-const getTypesBadge = (type) => {
-    switch (type) {
-        case "leave":
-            return "danger";
-
-        case "permission":
-            return "info";
-
-        case "sick":
-            return "warn";
-    }
-};
+const { permission_types, getBadgeClass } = useBadge();
 </script>
 
 <template>
@@ -123,7 +89,7 @@ const getTypesBadge = (type) => {
                             icon="pi pi-filter-slash"
                             label="Clear"
                             outlined
-                            @click="clearFilter()"
+                            @click="clearFilter(initPermissionFilters)"
                         />
                     </div>
                 </template>
@@ -197,7 +163,7 @@ const getTypesBadge = (type) => {
                     <template #body="{ data }">
                         <Tag
                             :value="data.type"
-                            :severity="getTypesBadge(data.type)"
+                            :severity="getBadgeClass(data.type, 'permission')"
                         />
                     </template>
                     <template #filter="{ filterModel, filterCallback }">
@@ -212,7 +178,12 @@ const getTypesBadge = (type) => {
                             <template #option="slotProps">
                                 <Tag
                                     :value="slotProps.option"
-                                    :severity="getTypesBadge(slotProps.option)"
+                                    :severity="
+                                        getBadgeClass(
+                                            slotProps.option,
+                                            'permission'
+                                        )
+                                    "
                                 />
                             </template>
                         </Select>
