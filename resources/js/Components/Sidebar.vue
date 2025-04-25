@@ -83,6 +83,7 @@ defineProps({
 
                 <li v-if="userRole === 'admin'">
                     <details
+                        open
                         class="group [&_summary::-webkit-details-marker]:hidden"
                     >
                         <summary

@@ -7,18 +7,23 @@ import {
     Column,
     DataTable,
     DatePicker,
+    Dialog,
     IconField,
     InputIcon,
     InputText,
     Select,
     Tag,
+    Textarea,
 } from "primevue";
 import { onMounted, ref } from "vue";
 import { useFilters } from "../../../../Composables/useFilter";
 import { formatDateTime } from "../../../../Composables/useFormatter";
 import { useBadge } from "../../../../Composables/useBadge";
+import DetailPermission from "../../../../Components/Permissions/DetailPermission.vue";
 
 const loading = ref(false);
+const detailPermission = ref(false);
+const selectedPermission = ref(null);
 
 const props = defineProps({
     permissions: {
@@ -221,24 +226,24 @@ const { permission_types, getBadgeClass } = useBadge();
                     <template #body="{ data }">
                         <div class="flex gap-2">
                             <Button
-                                asChild
-                                v-slot="slotProps"
+                                label="Detail"
                                 severity="info"
-                                size="small"
-                            >
-                                <Link
-                                    :href="
-                                        route('admin.permissions.show', data.id)
-                                    "
-                                    :class="slotProps.class"
-                                    >Detail</Link
-                                >
-                            </Button>
+                                @click="
+                                    selectedPermission = data;
+                                    detailPermission = true;
+                                "
+                            />
                         </div>
                     </template>
                 </Column>
             </DataTable>
         </div>
+
+        <DetailPermission
+            :visible="detailPermission"
+            @update:visible="(val) => (detailPermission = val)"
+            :selectedPermission="selectedPermission"
+        />
     </AppLayout>
 </template>
 
