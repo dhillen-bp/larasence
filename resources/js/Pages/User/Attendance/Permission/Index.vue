@@ -7,7 +7,6 @@ import {
     Column,
     DataTable,
     DatePicker,
-    Dialog,
     IconField,
     InputIcon,
     InputText,
@@ -44,7 +43,7 @@ onMounted(() => {
     });
 });
 
-const { permission_types, getBadgeClass } = useBadge();
+const { permissionTypes, getBadgeClass } = useBadge();
 </script>
 
 <template>
@@ -175,7 +174,7 @@ const { permission_types, getBadgeClass } = useBadge();
                         <Select
                             v-model="filterModel.value"
                             @change="filterCallback()"
-                            :options="permission_types"
+                            :options="permissionTypes"
                             placeholder="Select One"
                             style="min-width: 6rem"
                             :showClear="true"

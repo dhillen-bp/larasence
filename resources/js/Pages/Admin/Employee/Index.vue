@@ -3,12 +3,11 @@ import { Link, router, useForm, usePage } from "@inertiajs/vue3";
 import AppLayout from "../../../Layouts/AppLayout.vue";
 import { showToastSuccess } from "../../../Composables/useToast";
 import { ref } from "vue";
-import { Button, Column, DataTable, Dialog } from "primevue";
+import { Button, Column, DataTable } from "primevue";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import InputText from "primevue/inputtext";
 import { useFilters } from "../../../Composables/useFilter";
-import EditDialog from "../../../Components/Employees/FormEmployeeDialog.vue";
 import DeleteDialog from "../../../Components/DeleteDialog.vue";
 import FormEmployeeDialog from "../../../Components/Employees/FormEmployeeDialog.vue";
 
@@ -48,7 +47,7 @@ const openEditDialog = (employee) => {
 const handleSaved = () => {
     formDialogVisible.value = false;
 
-    showToastSuccess("Data saved successfully!");
+    showToastSuccess("Data employee saved successfully!");
 };
 
 const confirmDeleteEmployee = (employee) => {
@@ -187,20 +186,19 @@ const handleDeleteEmployee = () => {
                     </Column>
                 </DataTable>
             </div>
-
-            <DeleteDialog
-                :visible="deleteDialogVisible"
-                :target-name="selectedEmployee?.name"
-                @update:visible="deleteDialogVisible = $event"
-                @confirm="handleDeleteEmployee"
-            />
-
             <FormEmployeeDialog
                 :visible="formDialogVisible"
                 :mode="formDialogMode"
                 :employee="formEmployeeData"
                 @update:visible="formDialogVisible = $event"
                 @saved="handleSaved"
+            />
+
+            <DeleteDialog
+                :visible="deleteDialogVisible"
+                :target-name="selectedEmployee?.name"
+                @update:visible="deleteDialogVisible = $event"
+                @confirm="handleDeleteEmployee"
             />
         </div>
     </AppLayout>

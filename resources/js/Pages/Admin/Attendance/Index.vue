@@ -19,6 +19,9 @@ import { useFilters } from "../../../Composables/useFilter";
 import { useBadge } from "../../../Composables/useBadge";
 import { formatDateTime } from "../../../Composables/useFormatter";
 
+import DeleteDialog from "../../../Components/DeleteDialog.vue";
+import FormAttendanceDialog from "../../../Components/Attendances/FormAttendanceDialog.vue";
+
 const props = defineProps({
     attendances: {
         type: Object,
@@ -34,6 +37,8 @@ const page = usePage();
 const loading = ref(false);
 const deleteDialogVisible = ref(false);
 const selectedAttendance = ref(null);
+const formDialogVisible = ref(false);
+const formAttendanceData = ref(null);
 
 const { filters, initAttendanceFilters, clearFilter } = useFilters();
 
@@ -47,6 +52,17 @@ onMounted(() => {
 });
 
 const { attendanceStatus, getBadgeClass } = useBadge();
+
+const openEditAttendanceDialog = (attendance) => {
+    formAttendanceData.value = attendance;
+    formDialogVisible.value = true;
+};
+
+const handleSaved = () => {
+    formDialogVisible.value = false;
+
+    showToastSuccess("Data attendance saved successfully!");
+};
 
 const confirmDeleteAttendance = (employee) => {
     selectedAttendance.value = employee;
@@ -225,22 +241,13 @@ const handleDeleteAttendance = () => {
                         <template #body="{ data }">
                             <div class="flex gap-2">
                                 <Button
-                                    asChild
-                                    v-slot="slotProps"
-                                    severity="info"
+                                    label="Edit"
                                     size="small"
-                                >
-                                    <Link
-                                        :href="
-                                            route(
-                                                'admin.attendances.edit',
-                                                data.id
-                                            )
-                                        "
-                                        :class="slotProps.class"
-                                        >Edit</Link
-                                    >
-                                </Button>
+                                    icon="pi pi-pencil"
+                                    severity="info"
+                                    @click="openEditAttendanceDialog(data)"
+                                />
+
                                 <Button
                                     label="Delete"
                                     severity="danger"
@@ -254,28 +261,19 @@ const handleDeleteAttendance = () => {
                 </DataTable>
             </div>
 
-            <Dialog
-                v-model:visible="deleteDialogVisible"
-                :style="{ width: '350px' }"
-                header="Confirm Delete"
-                :modal="true"
-            >
-                <span>Are you sure you want to delete attendances ?</span>
-                <template #footer>
-                    <Button
-                        label="No"
-                        icon="pi pi-times"
-                        severity="secondary"
-                        @click="deleteDialogVisible = false"
-                    />
-                    <Button
-                        label="Yes"
-                        icon="pi pi-check"
-                        severity="danger"
-                        @click="handleDeleteAttendance"
-                    />
-                </template>
-            </Dialog>
+            <FormAttendanceDialog
+                :visible="formDialogVisible"
+                :attendance="formAttendanceData"
+                @update:visible="formDialogVisible = $event"
+                @saved="handleSaved"
+            />
+
+            <DeleteDialog
+                :visible="deleteDialogVisible"
+                :target-name="selectedAttendance?.name"
+                @update:visible="deleteDialogVisible = $event"
+                @confirm="handleDeleteAttendance"
+            />
         </div>
     </AppLayout>
 </template>

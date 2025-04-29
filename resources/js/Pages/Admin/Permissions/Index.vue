@@ -17,11 +17,14 @@ import {
 import { onMounted, ref } from "vue";
 import { useFilters } from "../../../Composables/useFilter";
 import { formatDateTime } from "../../../Composables/useFormatter";
+import DeleteDialog from "../../../Components/DeleteDialog.vue";
+import DetailPermissionIsApprove from "../../../Components/Permissions/DetailPermissionIsApprove.vue";
 
 const page = usePage();
 const loading = ref(false);
 const deleteDialogVisible = ref(false);
 const selectedPermission = ref(null);
+const detailPermission = ref(false);
 const permission_types = ref(["leave", "permission", "sick"]);
 
 const props = defineProps({
@@ -237,19 +240,14 @@ const handleDeletePermission = () => {
                     <template #body="{ data }">
                         <div class="flex gap-2">
                             <Button
-                                asChild
-                                v-slot="slotProps"
+                                label="Detail"
                                 severity="info"
-                                size="small"
-                            >
-                                <Link
-                                    :href="
-                                        route('admin.permissions.show', data.id)
-                                    "
-                                    :class="slotProps.class"
-                                    >Detail</Link
-                                >
-                            </Button>
+                                @click="
+                                    selectedPermission = data;
+                                    detailPermission = true;
+                                "
+                            />
+
                             <Button
                                 label="Delete"
                                 severity="danger"
@@ -263,28 +261,18 @@ const handleDeletePermission = () => {
             </DataTable>
         </div>
 
-        <Dialog
-            v-model:visible="deleteDialogVisible"
-            :style="{ width: '350px' }"
-            header="Confirm Delete"
-            :modal="true"
-        >
-            <span>Are you sure you want to delete permission ?</span>
-            <template #footer>
-                <Button
-                    label="No"
-                    icon="pi pi-times"
-                    severity="secondary"
-                    @click="deleteDialogVisible = false"
-                />
-                <Button
-                    label="Yes"
-                    icon="pi pi-check"
-                    severity="danger"
-                    @click="handleDeletePermission"
-                />
-            </template>
-        </Dialog>
+        <DetailPermissionIsApprove
+            :visible="detailPermission"
+            @update:visible="(val) => (detailPermission = val)"
+            :selectedPermission="selectedPermission"
+        />
+
+        <DeleteDialog
+            :visible="deleteDialogVisible"
+            :target-name="selectedPermission?.name"
+            @update:visible="deleteDialogVisible = $event"
+            @confirm="handleDeletePermission"
+        />
     </AppLayout>
 </template>
 
